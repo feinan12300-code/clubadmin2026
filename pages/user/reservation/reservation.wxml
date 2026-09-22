@@ -58,16 +58,16 @@
         <text>客户信息</text>
       </view>
       <view class="rform-card">
-        <view class="rform-field">
-          <view class="rf-label">贵姓 <text class="rf-req">*</text></view>
+        <view class="rform-field rf-row">
+          <view class="rf-label">贵姓<text class="rf-req">*</text></view>
           <input class="rf-input" value="{{form.customerName}}" data-key="customerName" bindinput="onInput" placeholder="请填写您的贵姓" placeholder-class="rf-ph" />
         </view>
-        <view class="rform-field">
-          <view class="rf-label">微信 <text class="rf-req">*</text></view>
+        <view class="rform-field rf-row">
+          <view class="rf-label">微信<text class="rf-req">*</text></view>
           <input class="rf-input" value="{{form.wechat}}" data-key="wechat" bindinput="onInput" placeholder="微信号，便于联系" placeholder-class="rf-ph" />
         </view>
-        <view class="rform-field">
-          <view class="rf-label">电话 <text class="rf-opt">选填</text></view>
+        <view class="rform-field rf-row">
+          <view class="rf-label">电话<text class="rf-opt">选填</text></view>
           <input class="rf-input" type="number" value="{{form.phone}}" data-key="phone" bindinput="onInput" placeholder="手机号码" placeholder-class="rf-ph" />
         </view>
       </view>
@@ -80,22 +80,20 @@
         <text>预订信息</text>
       </view>
       <view class="rform-card">
-        <view class="rf-row2">
-          <view class="rform-field rf-half">
-            <view class="rf-label">日期 <text class="rf-req">*</text></view>
-            <picker mode="date" value="{{form.date}}" bindchange="onFormDate">
-              <view class="rf-picker">{{form.date}}<text class="rf-arrow">▾</text></view>
-            </picker>
-          </view>
-          <view class="rform-field rf-half">
-            <view class="rf-label">时间 <text class="rf-req">*</text></view>
-            <picker mode="time" value="{{form.time}}" bindchange="onFormTime">
-              <view class="rf-picker">{{form.time}}<text class="rf-arrow">▾</text></view>
-            </picker>
-          </view>
+        <view class="rform-field rf-row">
+          <view class="rf-label">日期<text class="rf-req">*</text></view>
+          <picker mode="date" value="{{form.date}}" bindchange="onFormDate">
+            <view class="rf-picker">{{form.date}}<text class="rf-arrow">▾</text></view>
+          </picker>
         </view>
-        <view class="rform-field">
-          <view class="rf-label">人数 <text class="rf-req">*</text></view>
+        <view class="rform-field rf-row">
+          <view class="rf-label">时间<text class="rf-req">*</text></view>
+          <picker mode="time" value="{{form.time}}" bindchange="onFormTime">
+            <view class="rf-picker">{{form.time}}<text class="rf-arrow">▾</text></view>
+          </picker>
+        </view>
+        <view class="rform-field rf-row">
+          <view class="rf-label">人数<text class="rf-req">*</text></view>
           <view class="stepper">
             <view class="step-btn {{form.partySize <= 1 ? 'step-disabled' : ''}}" bindtap="onDec">−</view>
             <view class="step-val">{{form.partySize}}</view>
