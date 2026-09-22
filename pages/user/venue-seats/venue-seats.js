@@ -1,7 +1,6 @@
-// venue-seats.js — 用户端座位图：仅显示当前绑定的桌台
+// venue-seats.js — 用户端座位图：从门店列表进入，只读展示该门店全部桌台
 const app = getApp()
 const Store = require('../../../utils/store.js')
-const util = require('../../../utils/util.js')
 
 // 桌型显示名
 const TYPE_LABEL = {
@@ -12,7 +11,7 @@ const TYPE_LABEL = {
 }
 const STATUS_LABEL = {
   idle: '空闲',
-  occupied: '使用中',
+  occupied: '占用',
   reserved: '预留',
 }
 
@@ -20,15 +19,16 @@ Page({
   data: {
     venueId: '',
     venueName: '',
-    boundTable: null,   // 当前绑定的桌台详情
-    hasBinding: false,  // 是否已绑定桌台
-    activeOrder: null,  // 当前桌台的进行中订单
+    tables: [],        // 全部桌台（只读）
+    boundTableId: '',  // 已绑定的桌台（高亮）
+    hasBinding: false,
+    summary: { idle: 0, occupied: 0, reserved: 0, total: 0 },
   },
 
   onLoad(options) {
     const venueId = options.venueId || app.getCurrentVenueId()
     const venue = Store.getById(Store.KEYS.venues, venueId)
-    wx.setNavigationBarTitle({ title: venue ? venue.name : '我的桌位' })
+    wx.setNavigationBarTitle({ title: venue ? venue.name + '·座位图' : '座位图' })
     this.setData({
       venueId,
       venueName: venue ? venue.name : '',
@@ -41,69 +41,37 @@ Page({
 
   refresh() {
     const venueId = this.data.venueId
-    if (!venueId) { this.setData({ boundTable: null, hasBinding: false }); return }
+    if (!venueId) { this.setData({ tables: [] }); return }
+
+    // 读取当前用户绑定的桌台（用于高亮）
     const token = app.getToken()
     const binding = Store.getUserTable(token)
-    if (!binding || binding.venueId !== venueId) {
-      this.setData({ boundTable: null, hasBinding: false, activeOrder: null })
-      return
-    }
-    const table = Store.getById(Store.KEYS.tables, binding.tableId)
-    if (!table) {
-      this.setData({ boundTable: null, hasBinding: false, activeOrder: null })
-      return
-    }
-    // 查找该桌台进行中的订单
-    const order = Store.ordersByVenue(venueId).find(o => o.tableId === table.id && o.status === 'open')
-    const total = order ? (order.items || []).reduce((s, it) => s + it.price * it.qty, 0) : 0
-    const itemCount = order ? (order.items || []).reduce((s, it) => s + it.qty, 0) : 0
-    const activeOrder = order ? Object.assign({}, order, {
-      totalStr: total.toFixed(2),
-      itemCount,
-    }) : null
-    const boundTable = Object.assign({}, table, {
-      typeLabel: TYPE_LABEL[table.type] || table.type,
-      statusLabel: STATUS_LABEL[table.status] || table.status,
-    })
-    this.setData({ boundTable, hasBinding: true, activeOrder })
-  },
+    const boundTableId = (binding && binding.venueId === venueId) ? binding.tableId : ''
 
-  // 跳转去绑定桌台
-  goBind() {
-    wx.navigateTo({
-      url: `/pages/user/table-bind/table-bind?venueId=${this.data.venueId}`,
-    })
-  },
+    // 该门店全部桌台（只读，按名称排序）
+    const tables = Store.tablesByVenue(venueId)
+      .slice()
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+      .map(t => Object.assign({}, t, {
+        typeLabel: TYPE_LABEL[t.type] || t.type,
+        statusLabel: STATUS_LABEL[t.status] || t.status,
+        isBound: t.id === boundTableId,
+      }))
 
-  // 跳转点单
-  goOrdering() {
-    wx.navigateTo({
-      url: `/pages/user/ordering/ordering?venueId=${this.data.venueId}`,
-    })
-  },
+    // 统计
+    const summary = tables.reduce((acc, t) => {
+      acc.total += 1
+      if (t.status === 'idle') acc.idle += 1
+      else if (t.status === 'occupied') acc.occupied += 1
+      else if (t.status === 'reserved') acc.reserved += 1
+      return acc
+    }, { idle: 0, occupied: 0, reserved: 0, total: 0 })
 
-  // 跳转结算
-  goBilling() {
-    wx.redirectTo({
-      url: `/pages/user/billing/billing?venueId=${this.data.venueId}`,
-    })
-  },
-
-  // 解绑并重新选择
-  switchTable() {
-    wx.showModal({
-      title: '切换桌位',
-      content: '确认解除当前桌位绑定并重新选择？',
-      confirmColor: '#6366f1',
-      success: res => {
-        if (!res.confirm) return
-        const token = app.getToken()
-        Store.clearUserTable(token)
-        util.toast('已解除绑定', 'success')
-        wx.redirectTo({
-          url: `/pages/user/table-bind/table-bind?venueId=${this.data.venueId}`,
-        })
-      },
+    this.setData({
+      tables,
+      boundTableId,
+      hasBinding: !!boundTableId,
+      summary,
     })
   },
 })

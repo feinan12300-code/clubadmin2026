@@ -1,8 +1,9 @@
-// ordering.js — 用户端点单：使用绑定的桌台，移除开台/管理操作
+// ordering.js — 用户端点单：左右分栏布局 + 底部弹窗订单详情
 const app = getApp()
 const Store = require('../../../utils/store.js')
 const util = require('../../../utils/util.js')
 
+const TYPE_LABEL = { round: '圆桌', square: '方桌', booth: '卡座', bar: '吧台' }
 const STATUS_LABEL = { idle: '空闲', occupied: '使用中', reserved: '预留' }
 
 function fmtMoney(n) { return Number(n || 0).toFixed(2) }
@@ -12,15 +13,18 @@ Page({
     venueId: '',
     venueName: '',
     activeTableId: '',
-    activeTable: null,
+    activeTable: null,        // 当前桌台（含 typeLabel/statusLabel）
     activeOrderId: '',
-    orderItems: [],
-    orderTotalStr: '0.00',
     hasBinding: false,
-    // 菜单
+    // 菜单：分类列表 + 当前分类菜品
     cats: [],
     cat: '',
-    filteredMenu: [],
+    menuList: [],            // 当前分类下的菜品
+    // 订单明细（用于底部弹窗）
+    orderItems: [],           // [{ itemId, name, price, qty, notes, priceStr, subtotalStr }]
+    orderTotalStr: '0.00',
+    orderCount: 0,
+    sheetOpen: false,         // 订单明细弹窗是否展开
   },
 
   onLoad(options) {
@@ -38,39 +42,35 @@ Page({
 
   refresh() {
     const venueId = this.data.venueId
-    if (!venueId) { this.setData({ filteredMenu: [] }); return }
+    if (!venueId) { this.setData({ menuList: [] }); return }
 
     // 读取绑定的桌台
     const token = app.getToken()
     const binding = Store.getUserTable(token)
     if (!binding || binding.venueId !== venueId) {
-      this.setData({ hasBinding: false, activeTable: null, filteredMenu: [] })
+      this.setData({ hasBinding: false, activeTable: null, menuList: [] })
       util.toast('请先选择桌位')
       setTimeout(() => {
-        wx.redirectTo({
-          url: `/pages/user/table-bind/table-bind?venueId=${venueId}`,
-        })
+        wx.redirectTo({ url: '/pages/user/table-bind/table-bind?venueId=' + venueId })
       }, 800)
       return
     }
 
     const table = Store.getById(Store.KEYS.tables, binding.tableId)
     if (!table) {
-      this.setData({ hasBinding: false, activeTable: null, filteredMenu: [] })
+      this.setData({ hasBinding: false, activeTable: null, menuList: [] })
       util.toast('桌台不存在，请重新选择')
       setTimeout(() => {
         Store.clearUserTable(token)
-        wx.redirectTo({
-          url: `/pages/user/table-bind/table-bind?venueId=${venueId}`,
-        })
+        wx.redirectTo({ url: '/pages/user/table-bind/table-bind?venueId=' + venueId })
       }, 800)
       return
     }
 
     this.setData({ activeTableId: table.id, hasBinding: true })
-    // 检查是否有进行中的订单
+
+    // 如果桌台为空闲，自动开台（创建 open 订单 + 标记 occupied）
     let order = Store.ordersByVenue(venueId).find(o => o.tableId === table.id && o.status === 'open')
-    // 未开台则自动开台
     if (!order && table.status === 'idle') {
       order = Store.create(Store.KEYS.orders, {
         venueId,
@@ -82,19 +82,26 @@ Page({
       Store.setTableStatus(venueId, table.id, 'occupied')
       util.toast('已自动开台', 'success')
     }
-    this.setData({ activeTableId: table.id })
+
     this.refreshActive()
     this.refreshMenu()
   },
 
+  // 刷新桌台 + 订单明细
   refreshActive() {
     const id = this.data.activeTableId
     if (!id) return
     const table = Store.getById(Store.KEYS.tables, id)
     const order = Store.ordersByVenue(this.data.venueId).find(o => o.tableId === id && o.status === 'open')
-    const items = order ? (order.items || []).map((it, idx) => Object.assign({}, it, { idx, priceStr: fmtMoney(it.price) })) : []
+    const items = order ? (order.items || []).map((it, idx) => Object.assign({}, it, {
+      idx,
+      priceStr: fmtMoney(it.price),
+      subtotalStr: fmtMoney(it.price * it.qty),
+    })) : []
     const total = items.reduce((s, it) => s + it.price * it.qty, 0)
+    const count = items.reduce((s, it) => s + it.qty, 0)
     const activeTable = table ? Object.assign({}, table, {
+      typeLabel: TYPE_LABEL[table.type] || table.type,
       statusLabel: STATUS_LABEL[table.status] || table.status,
     }) : null
     this.setData({
@@ -102,26 +109,28 @@ Page({
       activeOrderId: order ? order.id : '',
       orderItems: items,
       orderTotalStr: fmtMoney(total),
+      orderCount: count,
     })
   },
 
-  // ====== 菜单 ======
+  // 刷新菜单：按分类分组
   refreshMenu() {
-    const menu = Store.menuByVenue(this.data.venueId)
-    const cats = [...new Set(menu.map(m => m.category).filter(Boolean))]
+    const all = Store.menuByVenue(this.data.venueId)
+    const cats = [...new Set(all.map(m => m.category).filter(Boolean))]
     let cat = this.data.cat
-    if (!cat || !cats.includes(cat)) cat = ''
-    const filtered = (cat ? menu.filter(m => m.category === cat) : menu)
-      .map(m => Object.assign({}, m, { priceStr: fmtMoney(m.price) }))
-    this.setData({ cats, cat, filteredMenu: filtered })
+    if (!cat || !cats.includes(cat)) cat = cats[0] || ''
+    const filtered = (cat ? all.filter(m => m.category === cat) : all)
+      .map(m => Object.assign({}, m, { priceStr: fmtMoney(m.price), disabled: !m.available || m.stock <= 0 }))
+    this.setData({ cats, cat, menuList: filtered })
   },
 
+  // 切换分类
   setCat(e) {
     this.setData({ cat: e.currentTarget.dataset.cat })
     this.refreshMenu()
   },
 
-  // 加单
+  // 加菜：加号按钮
   addToOrder(e) {
     if (!this.data.activeOrderId) { util.toast('请先开台'); return }
     const id = e.currentTarget.dataset.id
@@ -133,24 +142,12 @@ Page({
     else (order.items = order.items || []).push({ itemId: id, name: item.name, price: item.price, qty: 1, notes: '' })
     Store.update(Store.KEYS.menu, id, { stock: item.stock - 1 })
     Store.update(Store.KEYS.orders, order.id, { items: order.items })
-    util.toast(`已加入 ${item.name}`, 'success')
-    this.refresh()
+    this.refreshActive()
+    this.refreshMenu()
   },
 
-  incQty(e) {
-    const idx = Number(e.currentTarget.dataset.idx)
-    const order = Store.getById(Store.KEYS.orders, this.data.activeOrderId)
-    const it = order.items[idx]
-    if (!it) return
-    const m = Store.getById(Store.KEYS.menu, it.itemId)
-    if (m && m.stock <= 0) { util.toast('库存不足'); return }
-    it.qty += 1
-    if (m) Store.update(Store.KEYS.menu, m.id, { stock: Math.max(0, m.stock - 1) })
-    Store.update(Store.KEYS.orders, order.id, { items: order.items })
-    this.refresh()
-  },
-
-  decQty(e) {
+  // 减菜：底部弹窗中数量减号
+  minusItem(e) {
     const idx = Number(e.currentTarget.dataset.idx)
     const order = Store.getById(Store.KEYS.orders, this.data.activeOrderId)
     const it = order.items[idx]
@@ -160,46 +157,29 @@ Page({
     if (m) Store.update(Store.KEYS.menu, m.id, { stock: m.stock + 1 })
     if (it.qty <= 0) order.items.splice(idx, 1)
     Store.update(Store.KEYS.orders, order.id, { items: order.items })
-    this.refresh()
+    this.refreshActive()
+    this.refreshMenu()
   },
 
-  removeItem(e) {
-    const idx = Number(e.currentTarget.dataset.idx)
-    const order = Store.getById(Store.KEYS.orders, this.data.activeOrderId)
-    const it = order.items[idx]
-    if (!it) return
-    const m = Store.getById(Store.KEYS.menu, it.itemId)
-    if (m) Store.update(Store.KEYS.menu, m.id, { stock: m.stock + it.qty })
-    order.items.splice(idx, 1)
-    Store.update(Store.KEYS.orders, order.id, { items: order.items })
-    this.refresh()
+  // 弹窗：展开订单明细
+  openSheet() {
+    if (!this.data.activeOrderId || this.data.orderItems.length === 0) {
+      util.toast('当前订单为空')
+      return
+    }
+    this.setData({ sheetOpen: true })
+  },
+  closeSheet() {
+    this.setData({ sheetOpen: false })
+  },
+  catchSheetTap() {
+    // 阻止遮罩层点击冒泡到背景
   },
 
-  cancelOrder() {
-    wx.showModal({
-      title: '确认撤单',
-      content: '确认撤销此订单？所有菜品库存将归还。',
-      confirmColor: '#ef4444',
-      success: res => {
-        if (!res.confirm) return
-        const order = Store.getById(Store.KEYS.orders, this.data.activeOrderId)
-        if (order) {
-          (order.items || []).forEach(it => {
-            const m = Store.getById(Store.KEYS.menu, it.itemId)
-            if (m) Store.update(Store.KEYS.menu, m.id, { stock: m.stock + it.qty })
-          })
-          Store.update(Store.KEYS.orders, order.id, { status: 'cancelled', settledAt: Date.now() })
-        }
-        if (this.data.activeTableId) Store.setTableStatus(this.data.venueId, this.data.activeTableId, 'idle')
-        this.setData({ activeOrderId: '' })
-        util.toast('订单已撤销', 'success')
-        this.refresh()
-      },
-    })
-  },
-
+  // 跳转结算
   goBill() {
     if (!this.data.activeOrderId) { util.toast('当前无订单'); return }
-    wx.redirectTo({ url: `/pages/user/billing/billing?venueId=${this.data.venueId}` })
+    if (this.data.orderItems.length === 0) { util.toast('订单为空，请先点单'); return }
+    wx.redirectTo({ url: '/pages/user/billing/billing?venueId=' + this.data.venueId })
   },
 })

@@ -1,7 +1,4 @@
 {
-  "navigationBarTitleText": "点单系统",
-  "usingComponents": {
-    "venue-subnav": "/components/venue-subnav/venue-subnav",
-    "modal": "/components/modal/modal"
-  }
+  "navigationBarTitleText": "点单",
+  "usingComponents": {}
 }

@@ -62,10 +62,10 @@ Page({
     if (!token) { util.toast('请先登录'); return }
     Store.setUserTable(token, this.data.venueId, id)
     util.toast('已绑定 ' + (table.name || ''), 'success')
-    // 绑定后直接进入座位图（只展示自己桌台）
+    // 绑定后直接进入点单页（座位图入口已移至门店列表页）
     setTimeout(() => {
       wx.reLaunch({
-        url: `/pages/user/venue-seats/venue-seats?venueId=${this.data.venueId}`,
+        url: '/pages/user/ordering/ordering?venueId=' + this.data.venueId,
       })
     }, 600)
   },

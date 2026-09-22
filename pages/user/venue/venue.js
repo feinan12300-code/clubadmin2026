@@ -41,6 +41,15 @@ Page({
     })
   },
 
+  // 座位图入口：从门店列表进入 venue-seats（只读，查看该门店全部桌台）
+  goVenueSeats(e) {
+    const id = e.currentTarget.dataset.id
+    app.setCurrentVenue(id)
+    wx.navigateTo({
+      url: `/pages/user/venue-seats/venue-seats?venueId=${id}`,
+    })
+  },
+
   logout() {
     wx.showModal({
       title: '退出登录',

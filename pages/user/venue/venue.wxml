@@ -31,6 +31,7 @@
         </view>
         <view class="vc-actions">
           <view class="vc-reserve" catchtap="goReservation" data-id="{{item.id}}">预定排队</view>
+          <view class="vc-seats" catchtap="goVenueSeats" data-id="{{item.id}}">座位图</view>
           <view class="vc-enter">进入门店</view>
         </view>
       </view>

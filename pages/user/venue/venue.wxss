@@ -135,6 +135,19 @@
   transition: opacity 0.15s ease, transform 0.12s ease;
 }
 .vc-reserve:active { opacity: 0.8; transform: scale(0.96); }
+/* 座位图入口：轻量描边按钮 */
+.vc-seats {
+  display: inline-flex;
+  align-items: center;
+  font-size: 24rpx;
+  color: #047857;
+  background: #d1fae5;
+  padding: 12rpx 22rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #6ee7b7;
+  transition: opacity 0.15s ease, transform 0.12s ease;
+}
+.vc-seats:active { opacity: 0.8; transform: scale(0.96); }
 /* 进入按钮：渐变背景，圆角，右侧箭头 */
 .vc-enter {
   display: inline-flex;

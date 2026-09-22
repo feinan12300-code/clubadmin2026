@@ -1,16 +1,21 @@
 const app = getApp()
 
-// 各端 tab 配置：用户端座位图走 user/venue-seats，管理端走 admin/seatmap
+// 各端 tab 配置
+// 注：座位图入口已移至门店列表页（pages/user/venue 卡片按钮），进入门店后不再展示
 // 注：预定排队入口已移至门店列表页（pages/user/venue），进入门店后不再展示
 function buildTabs(role) {
   const isAdmin = role === 'admin'
-  return [
-    { key: 'seats', label: '座位图', path: isAdmin ? '/pages/admin/seatmap/seatmap' : '/pages/user/venue-seats/venue-seats' },
+  // 用户端 subnav 只保留 4 个：点单 → 结算 → 订单详情 → 消费记录
+  // 管理端仍保留座位图（admin/seatmap）
+  const tabs = isAdmin
+    ? [{ key: 'seats', label: '座位图', path: '/pages/admin/seatmap/seatmap' }]
+    : []
+  return tabs.concat([
     { key: 'ordering', label: '点单', path: '/pages/user/ordering/ordering' },
     { key: 'billing', label: '结算', path: '/pages/user/billing/billing' },
     { key: 'order-detail', label: '订单详情', path: '/pages/user/order-detail/order-detail' },
     { key: 'records', label: '消费记录', path: '/pages/user/records/records' },
-  ]
+  ])
 }
 
 Component({

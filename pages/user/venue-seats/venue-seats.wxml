@@ -1,67 +1,56 @@
-<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="seats"></venue-subnav>
-
 <view class="container">
-  <!-- 顶部当前桌台号 -->
-  <view wx:if="{{hasBinding && boundTable}}" class="bound-banner">
-    <view class="bb-label">当前桌位</view>
-    <view class="bb-name">{{boundTable.name}}</view>
-    <view class="bb-meta">
-      <text class="bb-type">{{boundTable.typeLabel}}</text>
-      <text class="bb-cap">· {{boundTable.capacity}}人</text>
-      <text class="tag tag-{{boundTable.status}}">{{boundTable.statusLabel}}</text>
+  <!-- 顶部门店信息 + 统计 -->
+  <view class="venue-banner">
+    <view class="vb-name">{{venueName}}</view>
+    <view class="vb-sub">座位图（只读查看）</view>
+    <view class="vb-stats">
+      <view class="vs-item">
+        <view class="vs-num">{{summary.total}}</view>
+        <view class="vs-label">总桌数</view>
+      </view>
+      <view class="vs-item vs-idle">
+        <view class="vs-num">{{summary.idle}}</view>
+        <view class="vs-label">空闲</view>
+      </view>
+      <view class="vs-item vs-occupied">
+        <view class="vs-num">{{summary.occupied}}</view>
+        <view class="vs-label">占用</view>
+      </view>
+      <view class="vs-item vs-reserved">
+        <view class="vs-num">{{summary.reserved}}</view>
+        <view class="vs-label">预留</view>
+      </view>
     </view>
   </view>
 
-  <!-- 桌台详情卡片 -->
-  <view wx:if="{{hasBinding && boundTable}}" class="card">
-    <view class="card-title">
-      <text>桌位信息</text>
-      <text class="sub">{{boundTable.name}}</text>
-    </view>
-    <view class="info-row">
-      <text class="info-label">桌型</text>
-      <text class="info-value">{{boundTable.typeLabel}}</text>
-    </view>
-    <view class="info-row">
-      <text class="info-label">容量</text>
-      <text class="info-value">{{boundTable.capacity}} 人</text>
-    </view>
-    <view class="info-row">
-      <text class="info-label">状态</text>
-      <text class="info-value"><text class="tag tag-{{boundTable.status}}">{{boundTable.statusLabel}}</text></text>
-    </view>
-    <view class="info-row" wx:if="{{activeOrder}}">
-      <text class="info-label">已点</text>
-      <text class="info-value">{{activeOrder.itemCount}} 件 · ¥{{activeOrder.totalStr}}</text>
-    </view>
+  <!-- 图例 -->
+  <view class="legend">
+    <view class="lg lg-idle"><view class="dot"></view>空闲</view>
+    <view class="lg lg-occupied"><view class="dot"></view>占用</view>
+    <view class="lg lg-reserved"><view class="dot"></view>预留</view>
+    <view wx:if="{{hasBinding}}" class="lg lg-bound"><view class="dot"></view>我已绑定</view>
   </view>
 
-  <!-- 进行中订单提示 -->
-  <view wx:if="{{hasBinding && activeOrder}}" class="card order-card">
-    <view class="card-title"><text>进行中的订单</text></view>
-    <view class="order-hint">您有未结算的订单，可前往点单继续加菜或去结算。</view>
-    <view class="btn-row">
-      <button class="btn btn-primary btn-block" bindtap="goOrdering">去点单</button>
-      <button class="btn btn-success btn-block" bindtap="goBilling">去结算</button>
-    </view>
-  </view>
-
-  <!-- 操作按钮 -->
-  <view wx:if="{{hasBinding && !activeOrder}}" class="card">
-    <view class="card-title"><text>开始消费</text></view>
-    <view class="order-hint">当前桌台为空闲状态，可前往点单开始本次消费。</view>
-    <button class="btn btn-primary btn-block" bindtap="goOrdering">去点单</button>
-  </view>
-
-  <view wx:if="{{hasBinding}}" class="card">
-    <button class="btn btn-block" bindtap="switchTable">切换其他桌位</button>
-  </view>
-
-  <!-- 未绑定桌台提示 -->
-  <view wx:if="{{!hasBinding}}" class="empty">
+  <!-- 桌台网格（只读） -->
+  <view wx:if="{{tables.length === 0}}" class="empty">
     <view class="empty-icon">🪑</view>
-    <view class="empty-title">请先选择桌位</view>
-    <view class="empty-desc">您还未绑定本次就座的桌位</view>
-    <button class="btn btn-primary" bindtap="goBind">去选择桌位</button>
+    <view class="empty-title">该门店暂无桌台</view>
+    <view class="empty-tip">请管理员在管理端添加桌台</view>
+  </view>
+
+  <view wx:else class="table-grid">
+    <view
+      wx:for="{{tables}}"
+      wx:key="id"
+      class="table-card st-{{item.status}} {{item.isBound ? 'is-bound' : ''}}"
+    >
+      <view wx:if="{{item.isBound}}" class="bound-flag">我的</view>
+      <view class="tc-name">{{item.name}}</view>
+      <view class="tc-meta">
+        <text class="tc-type">{{item.typeLabel}}</text>
+        <text class="tc-cap">{{item.capacity}}人</text>
+      </view>
+      <view class="tc-status status-{{item.status}}">{{item.statusLabel}}</view>
+    </view>
   </view>
 </view>
