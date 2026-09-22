@@ -1,14 +1,20 @@
+/* pages/user/reservation/reservation.wxss — 预订页面优化 */
+
+/* 日期选择器样式（统一） */
 .picker {
-  padding: 16rpx 20rpx;
+  padding: 20rpx 24rpx;
   background: #f9fafb;
-  border: 1rpx solid #e5e7eb;
-  border-radius: 10rpx;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 16rpx;
   font-size: 28rpx;
   color: #111827;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
 }
 
+/* 预订卡片：圆角，状态色标签 */
 .res-item {
-  padding: 24rpx 0;
+  padding: 26rpx 0;
   border-bottom: 1rpx solid #f3f4f6;
 }
 .res-item:last-child { border-bottom: none; }
@@ -16,25 +22,71 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10rpx;
+  margin-bottom: 12rpx;
 }
-.res-time { font-size: 32rpx; font-weight: 600; color: #111827; }
-.res-info { display: flex; gap: 24rpx; font-size: 26rpx; color: #374151; margin-bottom: 6rpx; }
-.res-name { font-weight: 500; }
+.res-time {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+}
+.res-info {
+  display: flex;
+  gap: 24rpx;
+  font-size: 26rpx;
+  color: #374151;
+  margin-bottom: 8rpx;
+  flex-wrap: wrap;
+}
+.res-name { font-weight: 500; color: #111827; }
 .res-meta { color: #6b7280; }
-.res-table { font-size: 26rpx; color: #4b5563; margin-bottom: 6rpx; }
-.res-tbl { color: #6366f1; font-weight: 500; }
-.res-unset { color: #ef4444; }
-.res-notes { font-size: 24rpx; color: #f59e0b; margin-bottom: 10rpx; }
+.res-table {
+  font-size: 26rpx;
+  color: #4b5563;
+  margin-bottom: 8rpx;
+}
+.res-tbl {
+  color: #6366f1;
+  font-weight: 500;
+}
+.res-unset {
+  color: #ef4444;
+  background: #fee2e2;
+  padding: 2rpx 10rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+}
+.res-notes {
+  font-size: 24rpx;
+  color: #f59e0b;
+  background: #fef3c7;
+  padding: 8rpx 14rpx;
+  border-radius: 8rpx;
+  margin-bottom: 12rpx;
+  margin-top: 4rpx;
+  line-height: 1.5;
+}
 .res-item .actions {
   display: flex;
   gap: 16rpx;
   margin-top: 12rpx;
+  flex-wrap: wrap;
 }
 
-.assign-row { display: flex; gap: 16rpx; align-items: center; }
+/* 表单：智能推荐桌台行 */
+.assign-row {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
 .assign-row picker { flex: 1; }
-.hint { font-size: 22rpx; color: #6b7280; margin-top: 8rpx; min-height: 30rpx; }
+.hint {
+  font-size: 22rpx;
+  color: #6b7280;
+  margin-top: 10rpx;
+  min-height: 30rpx;
+  line-height: 1.4;
+}
 .hint.warn { color: #f59e0b; }
 .hint.err { color: #ef4444; }
 .hint.ok { color: #10b981; }

@@ -1,3 +1,5 @@
+/* pages/index/index.wxss — 首页优化 */
+
 .index-wrap {
   min-height: 100vh;
   display: flex;
@@ -6,34 +8,88 @@
   justify-content: center;
   padding: 60rpx 40rpx;
   background: linear-gradient(180deg, #1e1b4b 0%, #312e81 100%);
+  position: relative;
+  overflow: hidden;
 }
+/* 背景装饰光晕 */
+.index-wrap::before {
+  content: '';
+  position: absolute;
+  top: -120rpx;
+  right: -120rpx;
+  width: 400rpx;
+  height: 400rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.25) 0%, transparent 70%);
+  pointer-events: none;
+}
+.index-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: -160rpx;
+  left: -160rpx;
+  width: 460rpx;
+  height: 460rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Logo 区域 */
 .logo {
   font-size: 140rpx;
   margin-bottom: 30rpx;
   user-select: none;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 6rpx 16rpx rgba(0, 0, 0, 0.3));
+  animation: logo-float 3s ease-in-out infinite;
 }
+@keyframes logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8rpx); }
+}
+
 .title {
-  font-size: 48rpx;
+  font-size: 52rpx;
   font-weight: 700;
   color: #fff;
   margin-bottom: 16rpx;
+  letter-spacing: 2rpx;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.3);
 }
 .subtitle {
   font-size: 26rpx;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   margin-bottom: 80rpx;
+  position: relative;
+  z-index: 1;
 }
+
+/* 登录按钮：大圆角，渐变 */
 .login-btn {
   width: 560rpx;
-  height: 88rpx;
-  line-height: 88rpx;
-  background: #07c160;
+  height: 92rpx;
+  line-height: 92rpx;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
   color: #fff;
   font-size: 32rpx;
-  border-radius: 44rpx;
+  font-weight: 500;
+  border-radius: 46rpx;
   border: none;
+  box-shadow: 0 8rpx 24rpx rgba(99, 102, 241, 0.45);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.login-btn:active {
+  transform: scale(0.97);
+  opacity: 0.92;
 }
 .login-btn[disabled] {
-  background: rgba(7,193,96,0.5);
-  color: #fff;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(129, 140, 248, 0.5));
+  color: rgba(255, 255, 255, 0.85);
+  box-shadow: none;
 }

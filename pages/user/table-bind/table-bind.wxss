@@ -1,18 +1,21 @@
+/* pages/user/table-bind/table-bind.wxss — 桌台选择网格优化 */
+
 .container { padding: 24rpx; box-sizing: border-box; }
 
-/* 门店头部 */
+/* 门店头部：渐变 banner */
 .venue-head {
-  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  background: linear-gradient(135deg, #6366f1, #818cf8);
   color: #fff;
-  border-radius: 20rpx;
-  padding: 32rpx 28rpx;
+  border-radius: 24rpx;
+  padding: 36rpx 28rpx;
   margin-bottom: 28rpx;
-  box-shadow: 0 6rpx 18rpx rgba(99, 102, 241, 0.25);
+  box-shadow: 0 6rpx 18rpx rgba(99, 102, 241, 0.22);
 }
 .vh-name {
   font-size: 36rpx;
   font-weight: 700;
   margin-bottom: 8rpx;
+  line-height: 1.3;
 }
 .vh-sub {
   font-size: 24rpx;
@@ -27,14 +30,16 @@
   padding-bottom: 140rpx;
 }
 
+/* 桌台卡片：圆角 20rpx，白底，阴影，active 反馈 */
 .table-card {
   position: relative;
   background: #fff;
-  border-radius: 18rpx;
+  border-radius: 20rpx;
   padding: 28rpx 24rpx;
   box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.05);
   border: 2rpx solid transparent;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
 }
 .table-card:active {
   transform: scale(0.97);
@@ -42,33 +47,62 @@
 }
 .table-card.bound {
   border-color: #6366f1;
-  background: #eef2ff;
+  background: linear-gradient(135deg, #eef2ff, #fff);
+  box-shadow: 0 4rpx 16rpx rgba(99, 102, 241, 0.2);
 }
 
+/* 桌台名：30rpx，600 */
 .tc-name {
-  font-size: 34rpx;
-  font-weight: 700;
+  font-size: 30rpx;
+  font-weight: 600;
   color: #111827;
   margin-bottom: 12rpx;
+  line-height: 1.3;
 }
+/* 类型 / 容量：badge 样式 */
 .tc-meta {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #6b7280;
+  flex-wrap: wrap;
 }
-.tc-type { color: #6366f1; font-weight: 500; }
-.tc-cap { color: #6b7280; }
+.tc-type {
+  color: #6366f1;
+  font-weight: 500;
+  background: #eef2ff;
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+}
+.tc-cap {
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+}
+/* 空闲状态：绿色圆点指示 */
 .tc-tag {
   position: absolute;
   top: 18rpx;
   right: 18rpx;
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
   font-size: 20rpx;
-  padding: 4rpx 14rpx;
+  padding: 4rpx 12rpx;
   border-radius: 999rpx;
   background: #d1fae5;
   color: #065f46;
+  font-weight: 500;
+}
+.tc-tag::before {
+  content: '';
+  width: 10rpx;
+  height: 10rpx;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 2rpx rgba(16, 185, 129, 0.25);
 }
 
 /* 底部提示 */
@@ -77,21 +111,21 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 22rpx 24rpx;
+  padding: 24rpx;
   background: #fff;
   text-align: center;
   font-size: 26rpx;
   color: #6366f1;
   font-weight: 500;
-  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.04);
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.05);
   z-index: 20;
 }
 
 /* 空状态 */
 .empty {
   text-align: center;
-  padding: 80rpx 20rpx;
+  padding: 80rpx 24rpx;
   color: #9ca3af;
 }
-.empty-icon { font-size: 80rpx; margin-bottom: 16rpx; }
-.empty-tip { font-size: 24rpx; color: #9ca3af; margin-top: 8rpx; }
+.empty-icon { font-size: 80rpx; margin-bottom: 20rpx; opacity: 0.85; }
+.empty-tip { font-size: 26rpx; color: #9ca3af; margin-top: 8rpx; }
