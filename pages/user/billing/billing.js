@@ -1,6 +1,6 @@
 const app = getApp()
-const Store = require('../../utils/store.js')
-const util = require('../../utils/util.js')
+const Store = require('../../../utils/store.js')
+const util = require('../../../utils/util.js')
 
 const METHOD_LIST = ['cash', 'wechat', 'alipay', 'card']
 const METHOD_NAMES = ['现金', '微信', '支付宝', '刷卡']

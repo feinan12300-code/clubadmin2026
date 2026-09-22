@@ -1,5 +1,5 @@
 const app = getApp()
-const Store = require('../../utils/store.js')
+const Store = require('../../../utils/store.js')
 
 Page({
   data: {

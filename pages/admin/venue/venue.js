@@ -1,6 +1,6 @@
 const app = getApp()
-const Store = require('../../utils/store.js')
-const util = require('../../utils/util.js')
+const Store = require('../../../utils/store.js')
+const util = require('../../../utils/util.js')
 
 Page({
   data: {

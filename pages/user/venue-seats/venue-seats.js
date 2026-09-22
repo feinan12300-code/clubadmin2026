@@ -1,6 +1,6 @@
 const app = getApp()
-const Store = require('../../utils/store.js')
-const util = require('../../utils/util.js')
+const Store = require('../../../utils/store.js')
+const util = require('../../../utils/util.js')
 
 // 桌型默认参数
 const TYPE_DEFAULTS = {

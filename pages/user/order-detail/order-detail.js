@@ -1,6 +1,6 @@
 const app = getApp()
-const Store = require('../../utils/store.js')
-const util = require('../../utils/util.js')
+const Store = require('../../../utils/store.js')
+const util = require('../../../utils/util.js')
 
 const STATUS_LABEL = { open: '进行中', settled: '已结算', cancelled: '已取消' }
 const METHOD_LABEL = { cash: '现金', wechat: '微信', alipay: '支付宝', card: '刷卡' }

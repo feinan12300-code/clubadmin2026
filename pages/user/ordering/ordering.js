@@ -1,6 +1,6 @@
 const app = getApp()
-const Store = require('../../utils/store.js')
-const util = require('../../utils/util.js')
+const Store = require('../../../utils/store.js')
+const util = require('../../../utils/util.js')
 
 const AVAIL_NAMES = ['上架', '下架']
 const STATUS_LABEL = { idle: '空闲', occupied: '使用中', reserved: '预留' }
