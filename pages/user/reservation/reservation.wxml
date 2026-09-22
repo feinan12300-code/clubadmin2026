@@ -48,52 +48,101 @@
   </view>
 </view>
 
-<!-- 新建/编辑弹窗 -->
+<!-- 新建/编辑弹窗：分区卡片式表单 -->
 <modal show="{{formShow}}" title="{{formId ? '编辑预订 / 改派' : '新建预订'}}" bind:close="closeForm">
-  <view class="form-row">
-    <label>贵姓 *</label>
-    <input value="{{form.customerName}}" data-key="customerName" bindinput="onInput" placeholder="客户姓氏" />
-  </view>
-  <view class="form-row">
-    <label>微信 *</label>
-    <input value="{{form.wechat}}" data-key="wechat" bindinput="onInput" placeholder="微信号" />
-  </view>
-  <view class="form-row">
-    <label>电话</label>
-    <input value="{{form.phone}}" data-key="phone" bindinput="onInput" placeholder="选填" />
-  </view>
-  <view class="form-grid">
-    <view class="form-row">
-      <label>预订日期 *</label>
-      <picker mode="date" value="{{form.date}}" bindchange="onFormDate">
-        <view class="picker">{{form.date}}</view>
-      </picker>
+  <view class="rform">
+    <!-- 客户信息 -->
+    <view class="rform-section">
+      <view class="rform-section-title">
+        <text class="rs-icon">👤</text>
+        <text>客户信息</text>
+      </view>
+      <view class="rform-card">
+        <view class="rform-field">
+          <view class="rf-label">贵姓 <text class="rf-req">*</text></view>
+          <input class="rf-input" value="{{form.customerName}}" data-key="customerName" bindinput="onInput" placeholder="请填写您的贵姓" placeholder-class="rf-ph" />
+        </view>
+        <view class="rform-field">
+          <view class="rf-label">微信 <text class="rf-req">*</text></view>
+          <input class="rf-input" value="{{form.wechat}}" data-key="wechat" bindinput="onInput" placeholder="微信号，便于联系" placeholder-class="rf-ph" />
+        </view>
+        <view class="rform-field">
+          <view class="rf-label">电话 <text class="rf-opt">选填</text></view>
+          <input class="rf-input" type="number" value="{{form.phone}}" data-key="phone" bindinput="onInput" placeholder="手机号码" placeholder-class="rf-ph" />
+        </view>
+      </view>
     </view>
-    <view class="form-row">
-      <label>到店时间 *</label>
-      <picker mode="time" value="{{form.time}}" bindchange="onFormTime">
-        <view class="picker">{{form.time}}</view>
-      </picker>
+
+    <!-- 预订信息 -->
+    <view class="rform-section">
+      <view class="rform-section-title">
+        <text class="rs-icon">📅</text>
+        <text>预订信息</text>
+      </view>
+      <view class="rform-card">
+        <view class="rf-row2">
+          <view class="rform-field rf-half">
+            <view class="rf-label">日期 <text class="rf-req">*</text></view>
+            <picker mode="date" value="{{form.date}}" bindchange="onFormDate">
+              <view class="rf-picker">{{form.date}}<text class="rf-arrow">▾</text></view>
+            </picker>
+          </view>
+          <view class="rform-field rf-half">
+            <view class="rf-label">时间 <text class="rf-req">*</text></view>
+            <picker mode="time" value="{{form.time}}" bindchange="onFormTime">
+              <view class="rf-picker">{{form.time}}<text class="rf-arrow">▾</text></view>
+            </picker>
+          </view>
+        </view>
+        <view class="rform-field">
+          <view class="rf-label">人数 <text class="rf-req">*</text></view>
+          <view class="stepper">
+            <view class="step-btn {{form.partySize <= 1 ? 'step-disabled' : ''}}" bindtap="onDec">−</view>
+            <view class="step-val">{{form.partySize}}</view>
+            <view class="step-btn" bindtap="onInc">+</view>
+            <view class="step-unit">人</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 桌台安排 -->
+    <view class="rform-section">
+      <view class="rform-section-title">
+        <text class="rs-icon">🪑</text>
+        <text>桌台安排</text>
+      </view>
+      <view class="rform-card">
+        <view class="rform-field">
+          <view class="rf-label">指派桌台</view>
+          <view class="assign-row">
+            <picker bindchange="onTablePick" value="{{tableIndex}}" range="{{tableLabels}}">
+              <view class="rf-picker">{{tableLabels[tableIndex] || '— 不指派 —'}}<text class="rf-arrow">▾</text></view>
+            </picker>
+            <view class="rec-btn" bindtap="onRecommend">
+              <text class="rec-icon">✨</text>
+              <text>智能推荐</text>
+            </view>
+          </view>
+          <view wx:if="{{recommendHint}}" class="hint hint-{{recommendClass}}">{{recommendHint}}</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="rform-section">
+      <view class="rform-section-title">
+        <text class="rs-icon">📝</text>
+        <text>备注</text>
+      </view>
+      <view class="rform-card">
+        <view class="rform-field">
+          <textarea class="rf-textarea" value="{{form.notes}}" data-key="notes" bindinput="onInput" placeholder="如有特殊需求请填写" placeholder-class="rf-ph" />
+        </view>
+      </view>
     </view>
   </view>
-  <view class="form-row">
-    <label>人数 *</label>
-    <input type="number" value="{{form.partySize}}" data-key="partySize" bindinput="onInput" />
-  </view>
-  <view class="form-row">
-    <label>指派桌台</label>
-    <view class="assign-row">
-      <picker bindchange="onTablePick" value="{{tableIndex}}" range="{{tableLabels}}">
-        <view class="picker">{{tableLabels[tableIndex] || '— 不指派 —'}}</view>
-      </picker>
-      <button class="btn btn-sm" bindtap="onRecommend">智能推荐</button>
-    </view>
-    <view class="hint">{{recommendHint}}</view>
-  </view>
-  <view class="form-row">
-    <label>备注</label>
-    <textarea value="{{form.notes}}" data-key="notes" bindinput="onInput"></textarea>
-  </view>
+
   <view slot="footer">
     <button class="btn" bindtap="closeForm">取消</button>
     <button class="btn btn-primary" bindtap="onSave">{{formId ? '保存' : '创建预订'}}</button>

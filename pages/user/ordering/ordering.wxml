@@ -1,4 +1,10 @@
 <view class="page">
+  <!-- 返回按钮 -->
+  <view class="back-bar">
+    <view class="back-btn" bindtap="onBack">‹ 返回</view>
+    <view class="back-title">{{venueName || '点单'}}</view>
+  </view>
+
   <!-- 未绑定桌台空状态 -->
   <view wx:if="{{!hasBinding}}" class="no-binding">
     <view class="nb-icon">🪑</view>

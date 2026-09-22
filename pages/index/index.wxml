@@ -1,6 +1,24 @@
 <view class="index-wrap">
+  <!-- 夜空背景：闪烁星 + 流星雨 -->
+  <view class="night-sky">
+    <view
+      wx:for="{{stars}}"
+      wx:key="id"
+      class="star"
+      style="top:{{item.top}}%;left:{{item.left}}%;width:{{item.size}}rpx;height:{{item.size}}rpx;opacity:{{item.opacity}};animation-duration:{{item.duration}}s;animation-delay:{{item.delay}}s;"
+    ></view>
+    <view
+      wx:for="{{meteors}}"
+      wx:key="id"
+      class="meteor"
+      style="top:{{item.top}}%;left:{{item.left}}%;animation-delay:{{item.delay}}s;animation-duration:{{item.duration}}s;"
+    >
+      <view class="meteor-tail"></view>
+    </view>
+  </view>
+
   <view class="logo" bindtap="onLogoTap">🍸</view>
-  <view class="title">酒吧预定系统</view>
+  <view class="title">全国酒吧预定</view>
 
   <block wx:if="{{!hasToken}}">
     <view class="subtitle">微信授权登录后即可预约点单</view>
@@ -11,6 +29,6 @@
 
   <block wx:else>
     <view class="subtitle">欢迎回来</view>
-    <button class="login-btn" bindtap="enterUser">进入系统</button>
+    <button class="login-btn" bindtap="enterUser">点击进入</button>
   </block>
 </view>

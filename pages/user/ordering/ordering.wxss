@@ -13,6 +13,38 @@ page {
   box-sizing: border-box;
 }
 
+/* 返回按钮栏 */
+.back-bar {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 24rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #e5e7eb;
+  position: relative;
+  flex-shrink: 0;
+}
+.back-btn {
+  display: flex;
+  align-items: center;
+  font-size: 28rpx;
+  color: #6366f1;
+  font-weight: 500;
+  padding: 8rpx 4rpx 8rpx 0;
+  transition: opacity 0.12s ease;
+}
+.back-btn:active { opacity: 0.6; }
+.back-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #111827;
+  pointer-events: none;
+}
+
 /* ========= 未绑定空状态 ========= */
 .no-binding {
   flex: 1;

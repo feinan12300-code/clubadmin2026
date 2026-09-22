@@ -324,6 +324,10 @@ page {
   color: #92400e;
   font-weight: 500;
 }
+.cash-badge.res-badge {
+  background: #eef2ff;
+  color: #4338ca;
+}
 
 /* ============ 无权限提示 ============ */
 .no-permission {

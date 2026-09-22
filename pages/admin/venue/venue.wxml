@@ -2,6 +2,7 @@
   <view class="home-header">
     <view class="home-title">门店管理</view>
     <view class="header-actions">
+      <view class="cash-badge res-badge" bindtap="goReservationNotice">📅 预定通知{{reservationCount > 0 ? '(' + reservationCount + ')' : ''}}</view>
       <view class="cash-badge" bindtap="goCashNotice">💰 现金通知{{cashCount > 0 ? '(' + cashCount + ')' : ''}}</view>
       <view class="role-tag admin" bindtap="backToIndex">⇄</view>
     </view>

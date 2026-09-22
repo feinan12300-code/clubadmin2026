@@ -6,6 +6,7 @@ Page({
   data: {
     venues: [],
     cashCount: 0,
+    reservationCount: 0,
     formShow: false,
     formId: '',
     form: { name: '', address: '', phone: '', openHours: '' },
@@ -22,11 +23,16 @@ Page({
       return Object.assign({}, v, { tableCount, menuCount })
     })
     const cashCount = Store.list(Store.KEYS.cashNotices).filter(n => n.status === 'pending').length
-    this.setData({ venues, cashCount })
+    const reservationCount = Store.list(Store.KEYS.reservationNotices).filter(n => n.status !== 'handled').length
+    this.setData({ venues, cashCount, reservationCount })
   },
 
   goCashNotice() {
     wx.navigateTo({ url: '/pages/admin/cash-notice/cash-notice' })
+  },
+
+  goReservationNotice() {
+    wx.navigateTo({ url: '/pages/admin/reservation-notice/reservation-notice' })
   },
 
   onInput(e) {

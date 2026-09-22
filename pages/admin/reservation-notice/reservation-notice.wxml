@@ -1,0 +1,68 @@
+<view class="container">
+  <view wx:if="{{notices.length === 0}}" class="empty">
+    <view class="empty-icon">📭</view>
+    <view>暂无预定通知</view>
+    <view class="empty-tip">用户提交预订后会在此显示</view>
+  </view>
+
+  <view wx:for="{{notices}}" wx:key="id" class="notice-card status-{{item.status}}">
+    <view class="nc-header">
+      <view class="nc-customer">
+        <text class="nc-name">{{item.customerName}}</text>
+        <text class="nc-party">{{item.partySize}}人</text>
+      </view>
+      <text class="nc-status nc-status-{{item.status}}">{{item.statusLabel}}</text>
+    </view>
+
+    <view class="nc-detail">
+      <view class="nc-row">
+        <text class="nc-key">📅 预订</text>
+        <text class="nc-val">{{item.date}} {{item.time}}</text>
+      </view>
+      <view class="nc-row">
+        <text class="nc-key">💬 微信</text>
+        <text class="nc-val">{{item.wechat || '-'}}</text>
+      </view>
+      <view wx:if="{{item.phone}}" class="nc-row">
+        <text class="nc-key">📱 电话</text>
+        <text class="nc-val">{{item.phone}}</text>
+      </view>
+      <view class="nc-row">
+        <text class="nc-key">🪑 台位</text>
+        <text wx:if="{{item.tableName}}" class="nc-val nc-tbl">{{item.tableName}}</text>
+        <text wx:else class="nc-val nc-unset">未指派</text>
+      </view>
+      <view wx:if="{{item.notes}}" class="nc-row">
+        <text class="nc-key">📝 备注</text>
+        <text class="nc-val">{{item.notes}}</text>
+      </view>
+      <view class="nc-row nc-meta-row">
+        <text class="nc-key">🏪 {{item.venueName}}</text>
+        <text class="nc-time">{{item.createdStr}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{item.status !== 'handled'}}" class="nc-actions">
+      <view class="nc-btn nc-btn-primary" bindtap="openAssign" data-id="{{item.id}}">
+        {{item.status === 'pending' ? '指派台位' : '复核并指派'}}
+      </view>
+      <view wx:if="{{item.status === 'review'}}" class="nc-btn nc-btn-ghost" bindtap="markHandled" data-id="{{item.id}}">
+        确认无误
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 指派台位弹窗 -->
+<view wx:if="{{assignShow}}" class="assign-mask" bindtap="closeAssign">
+  <view class="assign-box" catchtap="noop">
+    <view class="assign-title">指派台位</view>
+    <picker bindchange="onTablePick" value="{{assignTableIndex}}" range="{{assignTableLabels}}">
+      <view class="assign-picker">{{assignTableLabels[assignTableIndex]}}<text class="assign-arrow">▾</text></view>
+    </picker>
+    <view class="assign-actions">
+      <view class="assign-btn assign-cancel" bindtap="closeAssign">取消</view>
+      <view class="assign-btn assign-confirm" bindtap="onAssignSave">确认指派</view>
+    </view>
+  </view>
+</view>

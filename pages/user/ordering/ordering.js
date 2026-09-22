@@ -184,6 +184,11 @@ Page({
     wx.redirectTo({ url: '/pages/user/table-bind/table-bind?venueId=' + this.data.venueId })
   },
 
+  // 返回门店列表
+  onBack() {
+    wx.reLaunch({ url: '/pages/user/venue/venue' })
+  },
+
   // 弹窗：展开订单明细
   openSheet() {
     if (!this.data.activeOrderId || this.data.orderItems.length === 0) {

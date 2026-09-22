@@ -83,6 +83,20 @@ Page({
     this.setData({ 'form.time': e.detail.value })
   },
 
+  // 人数步进器
+  onInc() {
+    const v = Number(this.data.form.partySize) || 1
+    if (v >= 50) { util.toast('人数上限 50'); return }
+    this.setData({ 'form.partySize': v + 1 })
+    this.updateRecommend()
+  },
+  onDec() {
+    const v = Number(this.data.form.partySize) || 1
+    if (v <= 1) return
+    this.setData({ 'form.partySize': v - 1 })
+    this.updateRecommend()
+  },
+
   // 桌台列表
   rebuildTableOptions() {
     const tables = Store.tablesByVenue(this.data.venueId)
@@ -236,7 +250,25 @@ Page({
         const t = Store.getById(Store.KEYS.tables, r.tableId)
         if (t && t.status !== 'occupied') Store.setTableStatus(this.data.venueId, r.tableId, 'reserved')
       }
-      util.toast('预订已创建', 'success')
+      // 通知管理端：新预订待指派台位
+      const venue = Store.getById(Store.KEYS.venues, this.data.venueId)
+      Store.create(Store.KEYS.reservationNotices, {
+        venueId: this.data.venueId,
+        venueName: venue ? venue.name : '',
+        reservationId: r.id,
+        customerName: r.customerName,
+        wechat: r.wechat,
+        phone: r.phone,
+        date: r.date,
+        time: r.time,
+        partySize: r.partySize,
+        tableId: r.tableId,
+        tableName: r.tableId ? (Store.getById(Store.KEYS.tables, r.tableId) || {}).name : '',
+        notes: r.notes,
+        status: r.tableId ? 'review' : 'pending', // 已指派需复核 / 未指派待指派
+        createdAt: Date.now(),
+      }, { prefix: 'rn', noTimestamp: true })
+      util.toast('预订已创建，等待门店确认', 'success')
     }
     this.setData({ formShow: false })
     this.refresh()

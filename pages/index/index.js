@@ -5,6 +5,8 @@ Page({
     hasToken: false,
     logging: false,
     _tapCount: 0, // 隐藏管理端入口计数
+    stars: [],     // 闪烁小星点
+    meteors: [],   // 流星
   },
 
   onLoad() {
@@ -12,6 +14,34 @@ Page({
     if (token) {
       this.setData({ hasToken: true })
     }
+    this._genStars()
+  },
+
+  // 生成静态闪烁星点（70 颗）+ 流星（6 颗）
+  _genStars() {
+    const stars = []
+    for (let i = 0; i < 70; i++) {
+      stars.push({
+        id: 's' + i,
+        top: Math.random() * 100,
+        left: Math.random() * 100,
+        size: Math.random() * 3 + 1.5,         // 1.5~4.5rpx
+        opacity: Math.random() * 0.5 + 0.4,    // 0.4~0.9
+        duration: Math.random() * 3 + 2,       // 2~5s
+        delay: Math.random() * 5,             // 0~5s
+      })
+    }
+    const meteors = []
+    for (let i = 0; i < 6; i++) {
+      meteors.push({
+        id: 'm' + i,
+        top: Math.random() * 40,              // 流星起点偏上
+        left: Math.random() * 80 + 10,        // 10~90%
+        delay: i * 2.5 + Math.random() * 2,
+        duration: Math.random() * 1 + 1.2,    // 1.2~2.2s
+      })
+    }
+    this.setData({ stars, meteors })
   },
 
   // 微信登录

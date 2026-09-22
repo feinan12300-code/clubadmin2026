@@ -11,12 +11,13 @@
     "pages/user/records/records",
     "pages/admin/venue/venue",
     "pages/admin/seatmap/seatmap",
-    "pages/admin/cash-notice/cash-notice"
+    "pages/admin/cash-notice/cash-notice",
+    "pages/admin/reservation-notice/reservation-notice"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#1f2937",
-    "navigationBarTitleText": "酒吧预定系统",
+    "navigationBarTitleText": "全国酒吧预定",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f5f6fa"
   },
