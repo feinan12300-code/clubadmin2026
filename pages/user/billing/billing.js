@@ -61,17 +61,24 @@ Page({
   refresh() {
     const venueId = this.data.venueId
     if (!venueId) { this.setData({ openOrders: [] }); return }
-    // 待结算
-    const openOrders = Store.ordersByVenue(venueId).filter(o => o.status === 'open').map(o => {
-      const t = Store.getById(Store.KEYS.tables, o.tableId)
-      return Object.assign({}, o, {
-        tableName: t ? t.name : '?',
-        timeStr: util.formatTime(o.createdAt),
-        totalStr: fmtMoney(orderTotal(o)),
-        detail: (o.items || []).map(it => `${it.name}×${it.qty}`).join('，') || '空',
-        checked: false,
-      })
-    })
+    // 用户端：只显示绑定桌台的待结算订单
+    const token = app.getToken()
+    const binding = Store.getUserTable(token)
+    const boundTableId = (binding && binding.venueId === venueId) ? binding.tableId : null
+    let openOrders = []
+    if (boundTableId) {
+      openOrders = Store.ordersByVenue(venueId).filter(o => o.status === 'open' && o.tableId === boundTableId)
+        .map(o => {
+          const t = Store.getById(Store.KEYS.tables, o.tableId)
+          return Object.assign({}, o, {
+            tableName: t ? t.name : '?',
+            timeStr: util.formatTime(o.createdAt),
+            totalStr: fmtMoney(orderTotal(o)),
+            detail: (o.items || []).map(it => `${it.name}×${it.qty}`).join('，') || '空',
+            checked: false,
+          })
+        })
+    }
     this.setData({ openOrders, selectedCount: 0 })
     // 统计
     this.setData({ stats: this.computeStats(venueId) })

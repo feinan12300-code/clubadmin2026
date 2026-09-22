@@ -1,28 +1,29 @@
 page { display: flex; flex-direction: column; height: calc(100vh - 120rpx); box-sizing: border-box; }
 
-.table-strip {
+/* 顶部桌台信息条 */
+.table-header {
   flex: 0 0 auto;
-  background: #fff;
-  padding: 16rpx 20rpx;
-  white-space: nowrap;
-  border-bottom: 1rpx solid #e5e7eb;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: #fff;
+  padding: 22rpx 24rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4rpx 14rpx rgba(99, 102, 241, 0.2);
 }
-.strip-empty { color: #9ca3af; font-size: 24rpx; padding: 12rpx 0; }
-.pill {
-  display: inline-block;
-  width: 200rpx;
-  margin-right: 16rpx;
-  padding: 14rpx 16rpx;
-  background: #f9fafb;
-  border: 1rpx solid #e5e7eb;
-  border-radius: 12rpx;
-  vertical-align: top;
+.th-left { flex: 1; min-width: 0; }
+.th-label { font-size: 22rpx; opacity: 0.85; margin-bottom: 6rpx; }
+.th-name {
+  font-size: 38rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
 }
-.pill.active { background: #eef2ff; border-color: #6366f1; }
-.pill-name { font-size: 28rpx; font-weight: 500; color: #111827; margin-bottom: 6rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pill-sub { display: flex; align-items: center; gap: 8rpx; font-size: 22rpx; color: #6b7280; flex-wrap: wrap; }
-.pill-cap { color: #6b7280; }
-.pill-total { color: #6366f1; font-weight: 500; }
+.th-meta { display: flex; align-items: center; gap: 10rpx; font-size: 24rpx; }
+.th-meta .tag { background: rgba(255,255,255,0.25); color: #fff; }
+.th-cap { opacity: 0.9; }
+.th-right { text-align: right; }
+.th-total { font-size: 40rpx; font-weight: 700; }
+.th-total-label { font-size: 22rpx; opacity: 0.85; }
 
 .main { flex: 1; display: flex; overflow: hidden; }
 
@@ -48,6 +49,7 @@ page { display: flex; flex-direction: column; height: calc(100vh - 120rpx); box-
 .ord-cap { font-size: 22rpx; color: #6b7280; }
 .order-items { flex: 1; }
 .empty-sm { text-align: center; color: #9ca3af; font-size: 24rpx; padding: 20rpx 0; }
+.empty-tip { text-align: center; color: #9ca3af; font-size: 22rpx; padding: 8rpx 0; }
 .oi-row { display: flex; align-items: center; padding: 12rpx 0; border-bottom: 1rpx solid #f3f4f6; }
 .oi-info { flex: 1; min-width: 0; }
 .oi-name { font-size: 26rpx; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/user/venue/venue",
+    "pages/user/table-bind/table-bind",
     "pages/user/venue-seats/venue-seats",
     "pages/user/reservation/reservation",
     "pages/user/ordering/ordering",

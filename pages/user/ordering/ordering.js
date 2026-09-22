@@ -1,8 +1,8 @@
+// ordering.js — 用户端点单：使用绑定的桌台，移除开台/管理操作
 const app = getApp()
 const Store = require('../../../utils/store.js')
 const util = require('../../../utils/util.js')
 
-const AVAIL_NAMES = ['上架', '下架']
 const STATUS_LABEL = { idle: '空闲', occupied: '使用中', reserved: '预留' }
 
 function fmtMoney(n) { return Number(n || 0).toFixed(2) }
@@ -11,25 +11,16 @@ Page({
   data: {
     venueId: '',
     venueName: '',
-    isAdmin: false,
-    tables: [],
     activeTableId: '',
     activeTable: null,
     activeOrderId: '',
     orderItems: [],
     orderTotalStr: '0.00',
+    hasBinding: false,
     // 菜单
     cats: [],
     cat: '',
     filteredMenu: [],
-    // 菜品管理
-    mgrShow: false,
-    menuList: [],
-    itemFormShow: false,
-    itemId: '',
-    itemForm: { name: '', category: '', price: 0, stock: 50, available: true },
-    availIndex: 0,
-    availNames: AVAIL_NAMES,
   },
 
   onLoad(options) {
@@ -38,56 +29,76 @@ Page({
     this.setData({
       venueId,
       venueName: venue ? venue.name : '',
-      isAdmin: app.getRole() === 'admin',
     })
   },
+
   onShow() {
     this.refresh()
   },
 
   refresh() {
     const venueId = this.data.venueId
-    if (!venueId) { this.setData({ tables: [], filteredMenu: [] }); return }
-    // 桌台列表
-    const orders = Store.ordersByVenue(venueId).filter(o => o.status === 'open')
-    const tableOrderMap = {}
-    orders.forEach(o => { tableOrderMap[o.tableId] = o })
-    const tables = Store.tablesByVenue(venueId).slice().sort((a, b) => (a.name || '').localeCompare(b.name || ''))
-      .map(t => {
-        const o = tableOrderMap[t.id]
-        const total = o ? (o.items || []).reduce((s, it) => s + it.price * it.qty, 0) : 0
-        const hasOpen = !!o
-        const statusTag = hasOpen ? 'occupied' : t.status
-        return Object.assign({}, t, {
-          statusTag,
-          statusLabel: hasOpen ? '使用中' : (STATUS_LABEL[t.status] || t.status),
-          total,
-          totalStr: fmtMoney(total),
-        })
-      })
-    this.setData({ tables })
-    // 维持选中桌台
-    if (this.data.activeTableId) {
-      this.refreshActive()
-    }
-    this.refreshMenu()
-  },
+    if (!venueId) { this.setData({ filteredMenu: [] }); return }
 
-  // 选中桌台
-  selectTable(e) {
-    const id = e.currentTarget.dataset.id
-    this.setData({ activeTableId: id })
+    // 读取绑定的桌台
+    const token = app.getToken()
+    const binding = Store.getUserTable(token)
+    if (!binding || binding.venueId !== venueId) {
+      this.setData({ hasBinding: false, activeTable: null, filteredMenu: [] })
+      util.toast('请先选择桌位')
+      setTimeout(() => {
+        wx.redirectTo({
+          url: `/pages/user/table-bind/table-bind?venueId=${venueId}`,
+        })
+      }, 800)
+      return
+    }
+
+    const table = Store.getById(Store.KEYS.tables, binding.tableId)
+    if (!table) {
+      this.setData({ hasBinding: false, activeTable: null, filteredMenu: [] })
+      util.toast('桌台不存在，请重新选择')
+      setTimeout(() => {
+        Store.clearUserTable(token)
+        wx.redirectTo({
+          url: `/pages/user/table-bind/table-bind?venueId=${venueId}`,
+        })
+      }, 800)
+      return
+    }
+
+    this.setData({ activeTableId: table.id, hasBinding: true })
+    // 检查是否有进行中的订单
+    let order = Store.ordersByVenue(venueId).find(o => o.tableId === table.id && o.status === 'open')
+    // 未开台则自动开台
+    if (!order && table.status === 'idle') {
+      order = Store.create(Store.KEYS.orders, {
+        venueId,
+        tableId: table.id,
+        items: [],
+        status: 'open',
+        settledAt: null,
+      }, { prefix: 'ord' })
+      Store.setTableStatus(venueId, table.id, 'occupied')
+      util.toast('已自动开台', 'success')
+    }
+    this.setData({ activeTableId: table.id })
     this.refreshActive()
+    this.refreshMenu()
   },
 
   refreshActive() {
     const id = this.data.activeTableId
+    if (!id) return
     const table = Store.getById(Store.KEYS.tables, id)
     const order = Store.ordersByVenue(this.data.venueId).find(o => o.tableId === id && o.status === 'open')
     const items = order ? (order.items || []).map((it, idx) => Object.assign({}, it, { idx, priceStr: fmtMoney(it.price) })) : []
     const total = items.reduce((s, it) => s + it.price * it.qty, 0)
+    const activeTable = table ? Object.assign({}, table, {
+      statusLabel: STATUS_LABEL[table.status] || table.status,
+    }) : null
     this.setData({
-      activeTable: table,
+      activeTable,
       activeOrderId: order ? order.id : '',
       orderItems: items,
       orderTotalStr: fmtMoney(total),
@@ -108,21 +119,6 @@ Page({
   setCat(e) {
     this.setData({ cat: e.currentTarget.dataset.cat })
     this.refreshMenu()
-  },
-
-  // 开台
-  openTable() {
-    const order = Store.create(Store.KEYS.orders, {
-      venueId: this.data.venueId,
-      tableId: this.data.activeTableId,
-      items: [],
-      status: 'open',
-      settledAt: null,
-    }, { prefix: 'ord' })
-    Store.setTableStatus(this.data.venueId, this.data.activeTableId, 'occupied')
-    this.setData({ activeOrderId: order.id })
-    util.toast('已开台，请点单', 'success')
-    this.refresh()
   },
 
   // 加单
@@ -205,93 +201,5 @@ Page({
   goBill() {
     if (!this.data.activeOrderId) { util.toast('当前无订单'); return }
     wx.redirectTo({ url: `/pages/user/billing/billing?venueId=${this.data.venueId}` })
-  },
-
-  // ====== 菜品管理 ======
-  openMenuMgr() {
-    this.setData({ mgrShow: true })
-    this.refreshMenuList()
-  },
-  closeMgr() { this.setData({ mgrShow: false }) },
-  refreshMenuList() {
-    const menuList = Store.menuByVenue(this.data.venueId)
-      .map(m => Object.assign({}, m, { priceStr: fmtMoney(m.price) }))
-    this.setData({ menuList })
-  },
-
-  onItemInput(e) {
-    const key = e.currentTarget.dataset.key
-    let v = e.detail.value
-    if (key === 'price') v = Number(v) || 0
-    if (key === 'stock') v = Number(v) || 0
-    this.setData({ [`itemForm.${key}`]: v })
-  },
-
-  onItemAvail(e) {
-    const idx = Number(e.detail.value)
-    this.setData({ availIndex: idx, 'itemForm.available': idx === 0 })
-  },
-
-  openItemAdd() {
-    this.setData({
-      itemFormShow: true,
-      itemId: '',
-      itemForm: { name: '', category: '', price: 0, stock: 50, available: true },
-      availIndex: 0,
-    })
-  },
-
-  openItemEdit(e) {
-    const id = e.currentTarget.dataset.id
-    const m = Store.getById(Store.KEYS.menu, id)
-    if (!m) return
-    this.setData({
-      itemFormShow: true,
-      itemId: id,
-      itemForm: { name: m.name || '', category: m.category || '', price: m.price || 0, stock: m.stock || 0, available: !!m.available },
-      availIndex: m.available ? 0 : 1,
-    })
-  },
-
-  closeItemForm() { this.setData({ itemFormShow: false }) },
-
-  saveItem() {
-    const f = this.data.itemForm
-    if (!f.name.trim()) { util.toast('请填写名称'); return }
-    const data = {
-      name: f.name.trim(),
-      category: (f.category || '').trim() || '未分类',
-      price: Math.max(0, Number(f.price) || 0),
-      stock: Math.max(0, Number(f.stock) || 0),
-      available: !!f.available,
-    }
-    if (this.data.itemId) {
-      Store.update(Store.KEYS.menu, this.data.itemId, data)
-      util.toast('菜品已更新', 'success')
-    } else {
-      Store.create(Store.KEYS.menu, Object.assign({ venueId: this.data.venueId }, data), { prefix: 'menu' })
-      util.toast('菜品已新增', 'success')
-    }
-    this.setData({ itemFormShow: false })
-    this.refreshMenuList()
-    this.refreshMenu()
-  },
-
-  onDeleteItem(e) {
-    const id = e.currentTarget.dataset.id
-    const m = Store.getById(Store.KEYS.menu, id)
-    if (!m) return
-    wx.showModal({
-      title: '确认删除',
-      content: `确认删除菜品「${m.name}」？`,
-      confirmColor: '#ef4444',
-      success: res => {
-        if (!res.confirm) return
-        Store.remove(Store.KEYS.menu, id)
-        util.toast('已删除', 'success')
-        this.refreshMenuList()
-        this.refreshMenu()
-      },
-    })
   },
 })

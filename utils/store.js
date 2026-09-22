@@ -10,6 +10,7 @@ const KEYS = {
   settlements: 'bb_settlements',
   meta: 'bb_meta',
   role: 'bb_role',
+  userTable: 'bb_user_table',
 }
 
 // 内部：读取某 key 的数组
@@ -126,6 +127,27 @@ function setRole(role) {
   } catch (e) {}
 }
 
+// 用户桌台绑定：以 token 为键，存储 { token, venueId, tableId }
+function getUserTable(token) {
+  if (!token) return null
+  const arr = read(KEYS.userTable)
+  return arr.find(r => r.token === token) || null
+}
+function setUserTable(token, venueId, tableId) {
+  if (!token) return
+  const arr = read(KEYS.userTable)
+  const idx = arr.findIndex(r => r.token === token)
+  const record = { token, venueId, tableId }
+  if (idx === -1) arr.push(record)
+  else arr[idx] = record
+  write(KEYS.userTable, arr)
+}
+function clearUserTable(token) {
+  if (!token) return
+  const arr = read(KEYS.userTable).filter(r => r.token !== token)
+  write(KEYS.userTable, arr)
+}
+
 module.exports = {
   KEYS,
   uid,
@@ -147,4 +169,7 @@ module.exports = {
   setTableStatus,
   getRole,
   setRole,
+  getUserTable,
+  setUserTable,
+  clearUserTable,
 }

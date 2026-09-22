@@ -1,0 +1,35 @@
+<view class="container">
+  <!-- 门店信息 -->
+  <view class="venue-head">
+    <view class="vh-name">{{venueName}}</view>
+    <view class="vh-sub">请选择您本次就座的桌位</view>
+  </view>
+
+  <!-- 空闲桌台网格 -->
+  <view wx:if="{{tables.length === 0}}" class="empty">
+    <view class="empty-icon">🪑</view>
+    <view>当前暂无空闲桌位</view>
+    <view class="empty-tip">请稍后再试或联系门店工作人员</view>
+  </view>
+
+  <view wx:else class="table-grid">
+    <view
+      wx:for="{{tables}}"
+      wx:key="id"
+      class="table-card {{boundTableId === item.id ? 'bound' : ''}}"
+      bindtap="bindTable"
+      data-id="{{item.id}}"
+    >
+      <view class="tc-name">{{item.name}}</view>
+      <view class="tc-meta">
+        <text class="tc-type">{{item.typeLabel}}</text>
+        <text class="tc-cap">·</text>
+        <text class="tc-cap">{{item.capacity}}人</text>
+      </view>
+      <view class="tc-tag">空闲</view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="bottom-tip">请选择您的桌位号</view>
+</view>

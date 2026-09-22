@@ -22,7 +22,7 @@ Page({
     const id = e.currentTarget.dataset.id
     app.setCurrentVenue(id)
     wx.navigateTo({
-      url: `/pages/user/venue-seats/venue-seats?venueId=${id}`,
+      url: `/pages/user/table-bind/table-bind?venueId=${id}`,
     })
   },
 
