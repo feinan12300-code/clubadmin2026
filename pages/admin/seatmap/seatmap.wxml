@@ -34,6 +34,7 @@
   </view>
 
   <view class="canvas-wrap">
+    <view wx:if="{{dragHint}}" class="drag-hint">{{dragHint}}</view>
     <canvas type="2d" id="seatCanvas" class="seat-canvas" disable-scroll="{{true}}"
             bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd"></canvas>
   </view>

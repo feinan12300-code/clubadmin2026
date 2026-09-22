@@ -56,3 +56,20 @@
   height: 900rpx;
 }
 .seat-canvas { width: 100%; height: 100%; }
+
+/* 拖拽坐标提示条：浮在画布上方，紫色渐变 */
+.drag-hint {
+  position: absolute;
+  top: 16rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  padding: 8rpx 20rpx;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  font-size: 22rpx;
+  border-radius: 999rpx;
+  box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.35);
+  white-space: nowrap;
+  pointer-events: none;
+}

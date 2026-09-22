@@ -32,6 +32,8 @@ Page({
     // 添加台位表单
     addFormShow: false,
     addForm: { name: '', typeIdx: 0, capacity: '', x: '', y: '' },
+    // 拖拽时的坐标提示
+    dragHint: '',
   },
 
   canvas: null,
@@ -88,57 +90,48 @@ Page({
   },
 
   onTouchStart(e) {
-    // inspector/添加表单显示时不响应画布触摸，避免 modal 与画布层级错乱、上下滑穿透
-    if (this.data.inspectorShow || this.data.addFormShow) return
+    // 添加表单显示时不响应画布触摸（全屏 modal）
+    if (this.data.addFormShow) return
     this.updateCanvasRect()
     const { x, y } = this.getTouchPos(e)
     if (this.data.tool === 'select') {
       const hit = this.hitTest(x, y)
-      console.log('[onTouchStart] select mode', { x, y, hit: hit ? hit.id : 'null' })
       if (hit) {
         this.selectedId = hit.id
+        // 启动拖拽：不在 start 时打开 inspector，避免 modal 遮挡画布导致拖拽中断
         this.drag = { id: hit.id, startX: x, startY: y, origX: hit.x, origY: hit.y, moved: false }
-        this.openInspector(hit.id)
+        this.setData({ dragHint: `${hit.name}  拖拽调整位置…` })
         this.draw()
       } else {
         this.selectedId = null
-        this.setData({ inspectorShow: false })
+        this.setData({ inspectorShow: false, dragHint: '' })
         this.draw()
       }
     } else {
-      console.log('[onTouchStart] place mode', { tool: this.data.tool, x, y })
       this.placeTable(this.data.tool, x, y)
     }
   },
 
   onTouchMove(e) {
-    if (this.data.inspectorShow || this.data.addFormShow) return
+    if (this.data.addFormShow) return
     if (!this.drag) return
     const { x, y } = this.getTouchPos(e)
     const t = Store.getById(Store.KEYS.tables, this.drag.id)
     if (!t) return
     let nx = Math.max(0, Math.min(this.canvasW - t.w, this.drag.origX + (x - this.drag.startX)))
     let ny = Math.max(0, Math.min(this.canvasH - t.h, this.drag.origY + (y - this.drag.startY)))
-    console.log('[onTouchMove]', {
-      dragStart: { x: this.drag.startX, y: this.drag.startY },
-      origPos: { x: this.drag.origX, y: this.drag.origY },
-      touch: { x, y },
-      delta: { x: x - this.drag.startX, y: y - this.drag.startY },
-      newPos: { nx, ny },
-      clampMax: { x: this.canvasW - t.w, y: this.canvasH - t.h },
-    })
     Store.update(Store.KEYS.tables, t.id, { x: nx, y: ny })
     this.drag.moved = true
     this.loadTables()
+    this.setData({ dragHint: `${t.name}  (${Math.round(nx)}, ${Math.round(ny)})` })
     this.draw()
   },
 
   onTouchEnd() {
-    console.log('[onTouchEnd]', this.drag ? { id: this.drag.id, moved: this.drag.moved } : 'no drag')
-    if (this.drag && this.drag.moved && this.selectedId === this.drag.id) {
-      const t = Store.getById(Store.KEYS.tables, this.selectedId)
-      if (t) this.setData({ inspector: t })
-    }
+    if (!this.drag) return
+    // 拖拽/点击结束：打开 inspector 显示最新坐标（纯点击也打开，便于编辑属性）
+    this.openInspector(this.drag.id)
+    this.setData({ dragHint: '' })
     this.drag = null
   },
 
