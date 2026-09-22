@@ -1,0 +1,72 @@
+.container { padding: 24rpx; box-sizing: border-box; }
+
+.empty {
+  text-align: center;
+  padding: 120rpx 24rpx;
+  color: #9ca3af;
+}
+.empty-icon { font-size: 80rpx; margin-bottom: 20rpx; }
+
+.notice-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.05);
+}
+.notice-card.pending {
+  border-left: 6rpx solid #f59e0b;
+}
+
+.nc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.nc-table {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #111827;
+}
+.nc-status {
+  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  font-weight: 500;
+}
+.nc-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+.nc-status-handled {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.nc-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.nc-amount {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #ef4444;
+}
+.nc-time {
+  font-size: 24rpx;
+  color: #9ca3af;
+}
+
+.nc-action {
+  margin-top: 20rpx;
+  text-align: center;
+  padding: 16rpx;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: 600;
+  border-radius: 12rpx;
+}
+.nc-action:active { transform: scale(0.97); }

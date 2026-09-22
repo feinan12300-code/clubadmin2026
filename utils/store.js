@@ -11,6 +11,7 @@ const KEYS = {
   meta: 'bb_meta',
   role: 'bb_role',
   userTable: 'bb_user_table',
+  cashNotices: 'bb_cash_notices',
 }
 
 // 内部：读取某 key 的数组

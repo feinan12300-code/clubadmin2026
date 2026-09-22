@@ -10,7 +10,8 @@
     "pages/user/order-detail/order-detail",
     "pages/user/records/records",
     "pages/admin/venue/venue",
-    "pages/admin/seatmap/seatmap"
+    "pages/admin/seatmap/seatmap",
+    "pages/admin/cash-notice/cash-notice"
   ],
   "window": {
     "backgroundTextStyle": "light",

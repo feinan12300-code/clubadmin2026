@@ -1,0 +1,20 @@
+<view class="container">
+  <view wx:if="{{notices.length === 0}}" class="empty">
+    <view class="empty-icon">✅</view>
+    <view>暂无现金通知</view>
+  </view>
+
+  <view wx:for="{{notices}}" wx:key="id" class="notice-card {{item.status === 'pending' ? 'pending' : ''}}">
+    <view class="nc-header">
+      <text class="nc-table">{{item.tableName}}</text>
+      <text class="nc-status nc-status-{{item.status}}">{{item.statusLabel}}</text>
+    </view>
+    <view class="nc-body">
+      <text class="nc-amount">¥{{item.amountStr}}</text>
+      <text class="nc-time">{{item.timeStr}}</text>
+    </view>
+    <view wx:if="{{item.status === 'pending'}}" class="nc-action" bindtap="handleNotice" data-id="{{item.id}}">
+      标记已处理
+    </view>
+  </view>
+</view>

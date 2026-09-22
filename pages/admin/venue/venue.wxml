@@ -1,7 +1,10 @@
 <view class="container">
   <view class="home-header">
     <view class="home-title">门店管理</view>
-    <view class="role-tag admin" bindtap="backToIndex">管理端 ⇄</view>
+    <view class="header-actions">
+      <view class="cash-badge" bindtap="goCashNotice">💰 现金通知{{cashCount > 0 ? '(' + cashCount + ')' : ''}}</view>
+      <view class="role-tag admin" bindtap="backToIndex">⇄</view>
+    </view>
   </view>
 
   <view wx:if="{{venues.length === 0}}" class="empty">

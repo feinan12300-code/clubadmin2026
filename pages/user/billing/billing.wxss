@@ -52,37 +52,41 @@
   color: #ef4444;
 }
 
-/* 结算选项 */
-.form-row {
+/* 支付方式选择 */
+.pay-methods {
   display: flex;
-  align-items: center;
+  gap: 20rpx;
   padding: 16rpx 0;
-  border-bottom: 1rpx solid #f3f4f6;
-  gap: 16rpx;
 }
-.form-row label {
-  font-size: 26rpx;
-  color: #6b7280;
-  width: 140rpx;
-  flex: 0 0 140rpx;
-}
-.form-row input {
+.pay-option {
   flex: 1;
-  font-size: 28rpx;
-  color: #111827;
-  padding: 12rpx 16rpx;
-  background: #f9fafb;
-  border-radius: 12rpx;
-  border: 1rpx solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 12rpx;
+  border: 3rpx solid #e5e7eb;
+  border-radius: 16rpx;
+  background: #fff;
+  transition: all 0.2s ease;
 }
-.form-row .picker {
-  flex: 1;
-  font-size: 28rpx;
-  color: #111827;
-  padding: 12rpx 16rpx;
-  background: #f9fafb;
-  border-radius: 12rpx;
-  border: 1rpx solid #e5e7eb;
+.pay-option.active {
+  border-color: #6366f1;
+  background: linear-gradient(135deg, #eef2ff, #fff);
+  box-shadow: 0 4rpx 14rpx rgba(99, 102, 241, 0.15);
+}
+.pay-option:active { transform: scale(0.97); }
+.po-icon {
+  font-size: 48rpx;
+  margin-bottom: 10rpx;
+}
+.po-name {
+  font-size: 24rpx;
+  color: #374151;
+  font-weight: 500;
+}
+.pay-option.active .po-name {
+  color: #6366f1;
+  font-weight: 700;
 }
 
 /* 应付金额 */

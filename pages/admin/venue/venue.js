@@ -5,6 +5,7 @@ const util = require('../../../utils/util.js')
 Page({
   data: {
     venues: [],
+    cashCount: 0,
     formShow: false,
     formId: '',
     form: { name: '', address: '', phone: '', openHours: '' },
@@ -20,7 +21,12 @@ Page({
       const menuCount = Store.menuByVenue(v.id).length
       return Object.assign({}, v, { tableCount, menuCount })
     })
-    this.setData({ venues })
+    const cashCount = Store.list(Store.KEYS.cashNotices).filter(n => n.status === 'pending').length
+    this.setData({ venues, cashCount })
+  },
+
+  goCashNotice() {
+    wx.navigateTo({ url: '/pages/admin/cash-notice/cash-notice' })
   },
 
   onInput(e) {

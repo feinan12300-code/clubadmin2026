@@ -310,6 +310,21 @@ page {
 .role-tag.user { background: var(--color-success-bg); color: #059669; }
 .role-tag.admin { background: var(--color-primary-bg); color: var(--color-primary); }
 
+/* ============ 头部操作区 ============ */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+.cash-badge {
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 500;
+}
+
 /* ============ 无权限提示 ============ */
 .no-permission {
   display: flex;
