@@ -1,9 +1,7 @@
-<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="reservation"></venue-subnav>
-
 <view class="container">
   <view class="card">
     <view class="card-title">
-      <text>预订排位</text>
+      <text>{{venueName || '预订排位'}}</text>
       <button class="btn btn-primary btn-sm" bindtap="openAdd">+ 新建预订</button>
     </view>
     <view class="form-row">

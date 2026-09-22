@@ -1,11 +1,11 @@
 const app = getApp()
 
 // 各端 tab 配置：用户端座位图走 user/venue-seats，管理端走 admin/seatmap
+// 注：预定排队入口已移至门店列表页（pages/user/venue），进入门店后不再展示
 function buildTabs(role) {
   const isAdmin = role === 'admin'
   return [
     { key: 'seats', label: '座位图', path: isAdmin ? '/pages/admin/seatmap/seatmap' : '/pages/user/venue-seats/venue-seats' },
-    { key: 'reservation', label: '预定排队', path: '/pages/user/reservation/reservation' },
     { key: 'ordering', label: '点单', path: '/pages/user/ordering/ordering' },
     { key: 'billing', label: '结算', path: '/pages/user/billing/billing' },
     { key: 'order-detail', label: '订单详情', path: '/pages/user/order-detail/order-detail' },

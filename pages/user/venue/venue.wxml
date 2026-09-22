@@ -25,8 +25,14 @@
         <text class="vc-text">{{item.openHours || '-'}}</text>
       </view>
       <view class="vc-footer">
-        <view class="vc-tag"><text class="vc-icon">🪑</text> {{item.tableCount}} 个桌台</view>
-        <view class="vc-enter">进入门店</view>
+        <view class="vc-tags">
+          <view class="vc-tag"><text class="vc-icon">🪑</text> {{item.tableCount}} 个桌台</view>
+          <view class="vc-tag vc-queue"><text class="vc-icon">⏳</text> 排队 {{item.queueCount}} 桌</view>
+        </view>
+        <view class="vc-actions">
+          <view class="vc-reserve" catchtap="goReservation" data-id="{{item.id}}">预定排队</view>
+          <view class="vc-enter">进入门店</view>
+        </view>
       </view>
     </view>
   </view>
