@@ -1,0 +1,138 @@
+<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="seats"></venue-subnav>
+
+<view class="container">
+  <!-- 图例 -->
+  <view class="legend">
+    <view class="legend-item"><span class="dot" style="background:#10b981"></span>空闲</view>
+    <view class="legend-item"><span class="dot" style="background:#ef4444"></span>占用</view>
+    <view class="legend-item"><span class="dot" style="background:#f59e0b"></span>预留</view>
+  </view>
+
+  <!-- 编辑模式工具栏 -->
+  <view wx:if="{{mode === 'edit'}}" class="toolbar">
+    <view class="tool-group">
+      <view class="tool-label">工具</view>
+      <view class="tool-btns">
+        <view class="tool-btn {{tool === 'select' ? 'active' : ''}}" data-tool="select" bindtap="setTool">选择/移动</view>
+      </view>
+    </view>
+    <view class="tool-group">
+      <view class="tool-label">桌型</view>
+      <view class="tool-btns">
+        <view class="tool-btn {{tool === 'round' ? 'active' : ''}}" data-tool="round" bindtap="setTool">圆桌</view>
+        <view class="tool-btn {{tool === 'square' ? 'active' : ''}}" data-tool="square" bindtap="setTool">方桌</view>
+        <view class="tool-btn {{tool === 'booth' ? 'active' : ''}}" data-tool="booth" bindtap="setTool">卡座</view>
+        <view class="tool-btn {{tool === 'bar' ? 'active' : ''}}" data-tool="bar" bindtap="setTool">吧台</view>
+      </view>
+    </view>
+    <view class="tool-group">
+      <view class="tool-label">操作</view>
+      <view class="tool-btns">
+        <view class="tool-btn danger" bindtap="onClearAll">清空全部</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 查看模式提示 -->
+  <view wx:if="{{mode === 'view'}}" class="view-hint">
+    💡 点击空闲桌台可发起预约
+  </view>
+
+  <!-- canvas 画布 -->
+  <view class="canvas-wrap">
+    <canvas type="2d" id="seatCanvas" class="seat-canvas" disable-scroll="{{true}}"
+            bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd"></canvas>
+  </view>
+</view>
+
+<!-- 属性面板（编辑模式） -->
+<modal show="{{inspectorShow}}" title="桌台属性" bind:close="closeInspector">
+  <view class="form-row">
+    <label>名称</label>
+    <input value="{{inspector.name}}" data-key="name" bindinput="onInsInput" />
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>类型</label>
+      <picker bindchange="onInsType" value="{{typeIndex}}" range="{{typeNames}}">
+        <view class="picker">{{typeNames[typeIndex]}}</view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <label>状态</label>
+      <picker bindchange="onInsStatus" value="{{statusIndex}}" range="{{statusNames}}">
+        <view class="picker">{{statusNames[statusIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>容量</label>
+      <input type="number" value="{{inspector.capacity}}" data-key="capacity" bindinput="onInsInput" />
+    </view>
+    <view class="form-row">
+      <label>宽 W</label>
+      <input type="number" value="{{inspector.w}}" data-key="w" bindinput="onInsInput" />
+    </view>
+    <view class="form-row">
+      <label>高 H</label>
+      <input type="number" value="{{inspector.h}}" data-key="h" bindinput="onInsInput" />
+    </view>
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>X</label>
+      <input type="number" value="{{inspector.x}}" data-key="x" bindinput="onInsInput" />
+    </view>
+    <view class="form-row">
+      <label>Y</label>
+      <input type="number" value="{{inspector.y}}" data-key="y" bindinput="onInsInput" />
+    </view>
+  </view>
+  <view slot="footer">
+    <button class="btn btn-danger" bindtap="onDeleteTable">删除桌台</button>
+    <button class="btn btn-primary" bindtap="closeInspector">完成</button>
+  </view>
+</modal>
+
+<!-- 预约表单（查看模式） -->
+<modal show="{{reserveShow}}" title="预约桌台" bind:close="closeReserve">
+  <view class="reserve-table-info">
+    <text class="rt-name">{{reserveTable.name}}</text>
+    <text class="rt-meta">{{reserveTable.capacity}}人</text>
+  </view>
+  <view class="form-row">
+    <label>贵姓 *</label>
+    <input value="{{reserveForm.surname}}" data-key="surname" bindinput="onResInput" placeholder="您的姓氏" />
+  </view>
+  <view class="form-row">
+    <label>微信 *</label>
+    <input value="{{reserveForm.wechat}}" data-key="wechat" bindinput="onResInput" placeholder="微信号" />
+  </view>
+  <view class="form-row">
+    <label>电话</label>
+    <input value="{{reserveForm.phone}}" data-key="phone" bindinput="onResInput" placeholder="选填" />
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>日期 *</label>
+      <picker mode="date" value="{{reserveForm.date}}" bindchange="onResDate">
+        <view class="picker">{{reserveForm.date}}</view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <label>时间 *</label>
+      <picker mode="time" value="{{reserveForm.time}}" bindchange="onResTime">
+        <view class="picker">{{reserveForm.time}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="form-row">
+    <label>人数 *</label>
+    <input type="number" value="{{reserveForm.partySize}}" data-key="partySize" bindinput="onResInput" />
+  </view>
+  <view slot="footer">
+    <button class="btn" bindtap="closeReserve">取消</button>
+    <button class="btn btn-primary" bindtap="submitReserve">提交预约</button>
+  </view>
+</modal>

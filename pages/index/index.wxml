@@ -1,0 +1,16 @@
+<view class="index-wrap">
+  <view class="logo" bindtap="onLogoTap">🍸</view>
+  <view class="title">酒吧预定系统</view>
+
+  <block wx:if="{{!hasToken}}">
+    <view class="subtitle">微信授权登录后即可预约点单</view>
+    <button class="login-btn" bindtap="doLogin" loading="{{logging}}" disabled="{{logging}}">
+      微信登录
+    </button>
+  </block>
+
+  <block wx:else>
+    <view class="subtitle">欢迎回来</view>
+    <button class="login-btn" bindtap="enterUser">进入系统</button>
+  </block>
+</view>

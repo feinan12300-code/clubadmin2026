@@ -1,0 +1,72 @@
+<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="seats"></venue-subnav>
+
+<view class="container">
+  <view class="legend">
+    <view class="legend-item"><span class="dot" style="background:#10b981"></span>空闲</view>
+    <view class="legend-item"><span class="dot" style="background:#ef4444"></span>占用</view>
+    <view class="legend-item"><span class="dot" style="background:#f59e0b"></span>预留</view>
+  </view>
+
+  <view class="toolbar">
+    <view class="tool-group">
+      <view class="tool-label">工具</view>
+      <view class="tool-btns">
+        <view class="tool-btn {{tool === 'select' ? 'active' : ''}}" data-tool="select" bindtap="setTool">选择/移动</view>
+      </view>
+    </view>
+    <view class="tool-group">
+      <view class="tool-label">桌型</view>
+      <view class="tool-btns">
+        <view class="tool-btn {{tool === 'round' ? 'active' : ''}}" data-tool="round" bindtap="setTool">圆桌</view>
+        <view class="tool-btn {{tool === 'square' ? 'active' : ''}}" data-tool="square" bindtap="setTool">方桌</view>
+        <view class="tool-btn {{tool === 'booth' ? 'active' : ''}}" data-tool="booth" bindtap="setTool">卡座</view>
+        <view class="tool-btn {{tool === 'bar' ? 'active' : ''}}" data-tool="bar" bindtap="setTool">吧台</view>
+      </view>
+    </view>
+    <view class="tool-group">
+      <view class="tool-label">操作</view>
+      <view class="tool-btns">
+        <view class="tool-btn danger" bindtap="onClearAll">清空全部</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="canvas-wrap">
+    <canvas type="2d" id="seatCanvas" class="seat-canvas" disable-scroll="{{true}}"
+            bindtouchstart="onTouchStart" bindtouchmove="onTouchMove" bindtouchend="onTouchEnd"></canvas>
+  </view>
+</view>
+
+<modal show="{{inspectorShow}}" title="桌台属性" bind:close="closeInspector">
+  <view class="form-row">
+    <label>名称</label>
+    <input value="{{inspector.name}}" data-key="name" bindinput="onInsInput" />
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>类型</label>
+      <picker bindchange="onInsType" value="{{typeIndex}}" range="{{typeNames}}">
+        <view class="picker">{{typeNames[typeIndex]}}</view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <label>状态</label>
+      <picker bindchange="onInsStatus" value="{{statusIndex}}" range="{{statusNames}}">
+        <view class="picker">{{statusNames[statusIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="form-grid">
+    <view class="form-row"><label>容量</label><input type="number" value="{{inspector.capacity}}" data-key="capacity" bindinput="onInsInput" /></view>
+    <view class="form-row"><label>宽</label><input type="number" value="{{inspector.w}}" data-key="w" bindinput="onInsInput" /></view>
+    <view class="form-row"><label>高</label><input type="number" value="{{inspector.h}}" data-key="h" bindinput="onInsInput" /></view>
+  </view>
+  <view class="form-grid">
+    <view class="form-row"><label>X</label><input type="number" value="{{inspector.x}}" data-key="x" bindinput="onInsInput" /></view>
+    <view class="form-row"><label>Y</label><input type="number" value="{{inspector.y}}" data-key="y" bindinput="onInsInput" /></view>
+  </view>
+  <view slot="footer">
+    <button class="btn btn-danger" bindtap="onDeleteTable">删除桌台</button>
+    <button class="btn btn-primary" bindtap="closeInspector">完成</button>
+  </view>
+</modal>

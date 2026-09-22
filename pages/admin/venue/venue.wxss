@@ -1,0 +1,5 @@
+.vc-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}

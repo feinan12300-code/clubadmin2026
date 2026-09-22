@@ -1,0 +1,51 @@
+.subnav {
+  background: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.subnav-head {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx 0;
+}
+.back {
+  font-size: 40rpx;
+  color: #6366f1;
+  width: 48rpx;
+  line-height: 1;
+}
+.subnav-title {
+  flex: 1;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: center;
+}
+.subnav-role {
+  font-size: 22rpx;
+  color: #9ca3af;
+  width: 80rpx;
+  text-align: right;
+}
+.subnav-tabs {
+  display: flex;
+  white-space: nowrap;
+  padding: 12rpx 16rpx;
+}
+.tab {
+  display: inline-block;
+  padding: 12rpx 28rpx;
+  margin: 0 6rpx;
+  font-size: 26rpx;
+  color: #6b7280;
+  border-radius: 28rpx;
+  background: #f3f4f6;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: #6366f1;
+  color: #fff;
+  font-weight: 500;
+}

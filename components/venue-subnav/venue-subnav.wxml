@@ -1,0 +1,14 @@
+<view class="subnav">
+  <view class="subnav-head">
+    <view class="back" bindtap="backHome">‹</view>
+    <view class="subnav-title">{{venueName}}</view>
+    <view class="subnav-role">{{role === 'admin' ? '管理端' : '用户端'}}</view>
+  </view>
+  <scroll-view scroll-x class="subnav-tabs" enhanced show-scrollbar="{{false}}">
+    <view class="tab {{item.active ? 'active' : ''}}"
+          wx:for="{{tabs}}" wx:key="key"
+          data-key="{{item.key}}" bindtap="onTab">
+      {{item.label}}
+    </view>
+  </scroll-view>
+</view>

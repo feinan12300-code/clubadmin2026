@@ -1,0 +1,53 @@
+<view class="container">
+  <view class="home-header">
+    <view class="home-title">门店管理</view>
+    <view class="role-tag admin" bindtap="backToIndex">管理端 ⇄</view>
+  </view>
+
+  <view wx:if="{{venues.length === 0}}" class="empty">
+    <view class="empty-icon">🏠</view>
+    <view>还没有门店，点击右下角添加</view>
+  </view>
+
+  <view wx:else class="venue-grid">
+    <view class="venue-card" wx:for="{{venues}}" wx:key="id">
+      <view class="vc-name">{{item.name}}</view>
+      <view class="vc-meta">📍 {{item.address || '-'}}</view>
+      <view class="vc-meta">📞 {{item.phone || '-'}}</view>
+      <view class="vc-meta">🕐 {{item.openHours || '-'}}</view>
+      <view class="vc-meta">🪑 {{item.tableCount}} 桌台 / 🍷 {{item.menuCount}} 菜品</view>
+      <view class="vc-actions">
+        <button class="btn btn-sm btn-success" bindtap="enterSeatmap" data-id="{{item.id}}">座位图</button>
+        <button class="btn btn-sm" bindtap="openEdit" data-id="{{item.id}}">编辑</button>
+        <button class="btn btn-sm btn-danger" bindtap="onDelete" data-id="{{item.id}}">删除</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="add-fab" bindtap="openAdd">+</view>
+</view>
+
+<modal show="{{formShow}}" title="{{formId ? '编辑门店' : '添加门店'}}" bind:close="closeForm">
+  <view class="form-row">
+    <label>门店名称 *</label>
+    <input value="{{form.name}}" data-key="name" bindinput="onInput" placeholder="例如：醉夜酒吧" />
+  </view>
+  <view class="form-row">
+    <label>地址</label>
+    <input value="{{form.address}}" data-key="address" bindinput="onInput" placeholder="详细地址" />
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>联系电话</label>
+      <input value="{{form.phone}}" data-key="phone" bindinput="onInput" placeholder="021-xxxx" />
+    </view>
+    <view class="form-row">
+      <label>营业时间</label>
+      <input value="{{form.openHours}}" data-key="openHours" bindinput="onInput" placeholder="19:00 - 02:00" />
+    </view>
+  </view>
+  <view slot="footer">
+    <button class="btn" bindtap="closeForm">取消</button>
+    <button class="btn btn-primary" bindtap="onSave">{{formId ? '保存' : '创建'}}</button>
+  </view>
+</modal>

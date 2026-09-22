@@ -1,0 +1,40 @@
+<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="order-detail"></venue-subnav>
+
+<view class="container">
+  <view class="card">
+    <view class="card-title">
+      <text>订单详情</text>
+      <text class="sub">共 {{orders.length}} 单</text>
+    </view>
+
+    <view wx:if="{{orders.length === 0}}" class="empty">
+      <view class="empty-icon">📋</view>
+      <view>暂无订单</view>
+    </view>
+
+    <view wx:else class="order-list">
+      <view class="order-item" wx:for="{{orders}}" wx:key="id">
+        <view class="order-head" bindtap="toggleExpand" data-id="{{item.id}}">
+          <view class="order-left">
+            <view class="order-no">{{item.tableName}} · {{item.timeStr}}</view>
+            <view class="order-meta">{{item.itemCount}} 件商品</view>
+          </view>
+          <view class="order-right">
+            <view class="order-total">¥{{item.totalStr}}</view>
+            <view class="tag tag-{{item.status}}">{{item.statusLabel}}</view>
+          </view>
+          <view class="expand-arrow">{{expandedId === item.id ? '▲' : '▼'}}</view>
+        </view>
+
+        <view wx:if="{{expandedId === item.id}}" class="order-detail">
+          <view wx:for="{{item.items}}" wx:for-item="it" wx:key="itemId" class="order-goods">
+            <text class="g-name">{{it.name}}</text>
+            <text class="g-qty">x{{it.qty}}</text>
+            <text class="g-price">¥{{it.price}}</text>
+          </view>
+          <view wx:if="{{item.notes}}" class="order-notes">备注：{{item.notes}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

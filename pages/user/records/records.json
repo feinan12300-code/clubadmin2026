@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "消费记录",
+  "usingComponents": {
+    "venue-subnav": "/components/venue-subnav/venue-subnav"
+  }
+}

@@ -1,0 +1,77 @@
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 0 24rpx;
+}
+.home-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #111827;
+}
+.role-btn {
+  padding: 0 20rpx !important;
+  font-size: 24rpx !important;
+  line-height: 56rpx !important;
+  border-radius: 28rpx !important;
+}
+.role-admin { background: #ede9fe !important; color: #6366f1 !important; }
+.role-user { background: #d1fae5 !important; color: #059669 !important; }
+.logout-btn {
+  font-size: 24rpx;
+  color: #9ca3af;
+  padding: 8rpx 20rpx;
+}
+
+.venue-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+.venue-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.05);
+  position: relative;
+}
+.vc-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 10rpx;
+}
+.vc-meta {
+  font-size: 24rpx;
+  color: #6b7280;
+  margin-top: 6rpx;
+}
+.vc-enter {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #6366f1;
+  font-weight: 500;
+}
+.vc-admin-actions {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
+  display: flex;
+  gap: 12rpx;
+}
+.add-fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: 60rpx;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #6366f1;
+  color: #fff;
+  font-size: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 20rpx rgba(99,102,241,0.4);
+  z-index: 30;
+}

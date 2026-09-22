@@ -1,0 +1,15 @@
+.rec-list { display: flex; flex-direction: column; gap: 16rpx; }
+.rec-item {
+  background: #f9fafb;
+  border-radius: 12rpx;
+  padding: 20rpx;
+}
+.rec-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+.rec-time { font-size: 26rpx; color: #374151; font-weight: 500; }
+.rec-total { font-size: 32rpx; font-weight: 700; color: #ef4444; }
+.rec-meta { font-size: 24rpx; color: #6b7280; margin-top: 4rpx; }

@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="home-header">
+    <view class="home-title">选择门店</view>
+    <view class="logout-btn" bindtap="logout">退出</view>
+  </view>
+
+  <view wx:if="{{venues.length === 0}}" class="empty">
+    <view class="empty-icon">🏠</view>
+    <view>暂无门店</view>
+  </view>
+
+  <view wx:else class="venue-grid">
+    <view class="venue-card" wx:for="{{venues}}" wx:key="id" bindtap="enterVenue" data-id="{{item.id}}">
+      <view class="vc-name">{{item.name}}</view>
+      <view class="vc-meta">📍 {{item.address || '-'}}</view>
+      <view class="vc-meta">🕐 {{item.openHours || '-'}}</view>
+      <view class="vc-meta">🪑 {{item.tableCount}} 个桌台</view>
+      <view class="vc-enter">进入门店 ›</view>
+    </view>
+  </view>
+</view>

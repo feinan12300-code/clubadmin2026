@@ -1,0 +1,23 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/user/venue/venue",
+    "pages/user/venue-seats/venue-seats",
+    "pages/user/reservation/reservation",
+    "pages/user/ordering/ordering",
+    "pages/user/billing/billing",
+    "pages/user/order-detail/order-detail",
+    "pages/user/records/records",
+    "pages/admin/venue/venue",
+    "pages/admin/seatmap/seatmap"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#1f2937",
+    "navigationBarTitleText": "酒吧预定系统",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f6fa"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

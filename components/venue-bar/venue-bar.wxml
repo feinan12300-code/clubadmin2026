@@ -1,0 +1,6 @@
+<view class="venue-bar">
+  <text class="label">当前门店</text>
+  <picker bindchange="onPick" value="{{index}}" range="{{names}}">
+    <view class="picker-box">{{names[index] || '请选择门店'}}</view>
+  </picker>
+</view>

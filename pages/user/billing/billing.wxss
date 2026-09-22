@@ -1,0 +1,46 @@
+.container { padding: 24rpx; box-sizing: border-box; }
+.head-btns { display: flex; gap: 12rpx; }
+
+.top-list { margin-top: 16rpx; }
+.top-title { font-size: 26rpx; color: #6b7280; margin-bottom: 12rpx; }
+.top-row { display: flex; align-items: center; gap: 16rpx; padding: 8rpx 0; font-size: 26rpx; }
+.top-rank { width: 36rpx; height: 36rpx; line-height: 36rpx; text-align: center; background: #6366f1; color: #fff; border-radius: 50%; font-size: 22rpx; }
+.top-name { flex: 1; color: #111827; }
+.top-meta { color: #6b7280; font-size: 24rpx; }
+
+.order-list { padding-top: 8rpx; }
+.ord-row { padding: 20rpx 0; border-bottom: 1rpx solid #f3f4f6; }
+.ord-top { display: flex; align-items: center; gap: 12rpx; }
+.ord-check { padding: 8rpx; }
+.checkbox { width: 36rpx; height: 36rpx; border: 2rpx solid #d1d5db; border-radius: 8rpx; position: relative; }
+.checkbox.on { background: #6366f1; border-color: #6366f1; }
+.checkbox.on::after { content: '✓'; color: #fff; font-size: 26rpx; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.ord-table { font-size: 28rpx; font-weight: 600; color: #111827; flex: 1; }
+.ord-time { font-size: 22rpx; color: #9ca3af; }
+.ord-total { font-size: 30rpx; font-weight: 700; color: #6366f1; }
+.ord-detail { font-size: 24rpx; color: #6b7280; margin: 10rpx 0 10rpx 60rpx; }
+.ord-actions { display: flex; gap: 12rpx; margin-left: 60rpx; }
+
+/* 结算弹窗 */
+.settle-tables { font-size: 26rpx; color: #374151; margin-bottom: 12rpx; }
+.settle-items { max-height: 400rpx; }
+.si-row { display: flex; padding: 10rpx 0; font-size: 24rpx; border-bottom: 1rpx solid #f3f4f6; }
+.si-name { flex: 1; color: #111827; }
+.si-price, .si-qty { color: #6b7280; margin: 0 16rpx; }
+.si-sub { color: #111827; font-weight: 500; }
+.settle-total { display: flex; justify-content: space-between; align-items: center; padding: 16rpx 0; font-size: 28rpx; }
+.st-num { font-size: 36rpx; font-weight: 700; color: #6366f1; }
+.settle-orig { text-align: right; font-size: 22rpx; color: #9ca3af; }
+
+/* 拆分 */
+.hint { font-size: 24rpx; color: #6b7280; margin-bottom: 16rpx; }
+.sp-row { display: flex; align-items: center; gap: 12rpx; padding: 14rpx 0; border-bottom: 1rpx solid #f3f4f6; }
+.sp-name { flex: 1; color: #111827; font-size: 26rpx; }
+.sp-price, .sp-qty { color: #6b7280; font-size: 24rpx; }
+.sp-sub { color: #111827; font-weight: 500; font-size: 24rpx; }
+
+.picker { padding: 16rpx 20rpx; background: #f9fafb; border: 1rpx solid #e5e7eb; border-radius: 10rpx; font-size: 28rpx; }
+.empty { text-align: center; padding: 40rpx 0; color: #9ca3af; font-size: 26rpx; }
+.empty-icon { font-size: 72rpx; margin-bottom: 12rpx; }
+
+.empty-tip { font-size: 24rpx; color: #9ca3af; margin: 12rpx 0 20rpx; }

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "座位图",
+  "usingComponents": {
+    "modal": "/components/modal/modal",
+    "venue-subnav": "/components/venue-subnav/venue-subnav"
+  }
+}

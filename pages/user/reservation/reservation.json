@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "预订排位",
+  "usingComponents": {
+    "venue-subnav": "/components/venue-subnav/venue-subnav",
+    "modal": "/components/modal/modal"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "结算系统",
+  "usingComponents": {
+    "venue-subnav": "/components/venue-subnav/venue-subnav",
+    "modal": "/components/modal/modal"
+  }
+}

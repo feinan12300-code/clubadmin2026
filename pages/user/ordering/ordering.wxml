@@ -1,0 +1,145 @@
+<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="ordering"></venue-subnav>
+
+<!-- 桌台横向列表 -->
+<scroll-view scroll-x class="table-strip">
+  <view wx:if="{{tables.length === 0}}" class="strip-empty">无桌台，请先到「座位图」添加</view>
+  <view
+    wx:for="{{tables}}"
+    wx:key="id"
+    class="pill {{activeTableId === item.id ? 'active' : ''}}"
+    bindtap="selectTable"
+    data-id="{{item.id}}"
+  >
+    <view class="pill-name">{{item.name}}</view>
+    <view class="pill-sub">
+      <text class="tag tag-{{item.statusTag}}">{{item.statusLabel}}</text>
+      <text class="pill-cap">{{item.capacity}}人</text>
+      <text wx:if="{{item.total > 0}}" class="pill-total">¥{{item.totalStr}}</text>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="main">
+  <!-- 菜单区 -->
+  <view class="menu-area">
+    <view class="cat-bar">
+      <scroll-view scroll-x class="cat-scroll">
+        <view class="cat {{cat === '' ? 'active' : ''}}" bindtap="setCat" data-cat="">全部</view>
+        <view wx:for="{{cats}}" wx:key="*this" class="cat {{cat === item ? 'active' : ''}}" bindtap="setCat" data-cat="{{item}}">{{item}}</view>
+      </scroll-view>
+      <button wx:if="{{isAdmin}}" class="btn btn-sm" bindtap="openMenuMgr">管理</button>
+    </view>
+    <scroll-view scroll-y class="menu-scroll">
+      <view wx:if="{{filteredMenu.length === 0}}" class="empty">暂无菜品，点击右上「管理」添加</view>
+      <view class="menu-grid">
+        <view
+          wx:for="{{filteredMenu}}"
+          wx:key="id"
+          class="menu-cell {{!item.available || item.stock <= 0 ? 'disabled' : ''}}"
+          bindtap="addToOrder"
+          data-id="{{item.id}}"
+        >
+          <view class="m-name">{{item.name}}</view>
+          <view class="m-price">¥{{item.priceStr}}</view>
+          <view class="m-stock">库存 {{item.stock}}</view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 当前订单区 -->
+  <view class="order-area">
+    <view wx:if="{{!activeTableId}}" class="empty">请选择上方桌台</view>
+    <view wx:elif="{{!activeOrderId}}" class="order-empty">
+      <view class="order-head">
+        <text class="ord-name">{{activeTable.name}}</text>
+        <text class="tag tag-idle">空闲</text>
+        <text class="ord-cap">{{activeTable.capacity}}人</text>
+      </view>
+      <button class="btn btn-primary btn-block" bindtap="openTable">开台并点单</button>
+    </view>
+    <view wx:else class="order-filled">
+      <view class="order-head">
+        <text class="ord-name">{{activeTable.name}}</text>
+        <text class="tag tag-occupied">使用中</text>
+        <text class="ord-cap">{{activeTable.capacity}}人</text>
+      </view>
+      <scroll-view scroll-y class="order-items">
+        <view wx:if="{{orderItems.length === 0}}" class="empty-sm">尚未点单</view>
+        <view wx:for="{{orderItems}}" wx:key="idx" class="oi-row">
+          <view class="oi-info">
+            <view class="oi-name">{{item.name}}</view>
+            <view class="oi-price">¥{{item.priceStr}} × {{item.qty}}</view>
+          </view>
+          <view class="oi-ctrl">
+            <view class="oi-btn" bindtap="decQty" data-idx="{{index}}">−</view>
+            <text class="oi-qty">{{item.qty}}</text>
+            <view class="oi-btn" bindtap="incQty" data-idx="{{index}}">+</view>
+            <view class="oi-del" bindtap="removeItem" data-idx="{{index}}">×</view>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="order-total">
+        <text>合计</text>
+        <text class="ord-total-num">¥{{orderTotalStr}}</text>
+      </view>
+      <view class="order-actions">
+        <button class="btn btn-primary btn-block" bindtap="goBill">去结算</button>
+        <button class="btn btn-danger btn-block" bindtap="cancelOrder">撤单</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 菜品管理弹窗 -->
+<modal show="{{mgrShow}}" title="菜品管理" bind:close="closeMgr">
+  <button class="btn btn-primary btn-sm" bindtap="openItemAdd" style="margin-bottom:16rpx">+ 新增菜品</button>
+  <view wx:for="{{menuList}}" wx:key="id" class="mgr-row">
+    <view class="mgr-info">
+      <view class="mgr-name">{{item.name}}</view>
+      <view class="mgr-sub">{{item.category}} · ¥{{item.priceStr}} · 库存{{item.stock}} · {{item.available ? '上架' : '下架'}}</view>
+    </view>
+    <view class="mgr-btns">
+      <button class="btn btn-sm" bindtap="openItemEdit" data-id="{{item.id}}">编辑</button>
+      <button class="btn btn-sm btn-danger" bindtap="onDeleteItem" data-id="{{item.id}}">删</button>
+    </view>
+  </view>
+  <view wx:if="{{menuList.length === 0}}" class="empty">暂无菜品</view>
+  <view slot="footer">
+    <button class="btn btn-block" bindtap="closeMgr">关闭</button>
+  </view>
+</modal>
+
+<!-- 菜品表单弹窗 -->
+<modal show="{{itemFormShow}}" title="{{itemId ? '编辑菜品' : '新增菜品'}}" bind:close="closeItemForm">
+  <view class="form-row">
+    <label>名称 *</label>
+    <input value="{{itemForm.name}}" data-key="name" bindinput="onItemInput" />
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>分类</label>
+      <input value="{{itemForm.category}}" data-key="category" bindinput="onItemInput" placeholder="酒水/小食" />
+    </view>
+    <view class="form-row">
+      <label>价格 *</label>
+      <input type="digit" value="{{itemForm.price}}" data-key="price" bindinput="onItemInput" />
+    </view>
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>库存</label>
+      <input type="number" value="{{itemForm.stock}}" data-key="stock" bindinput="onItemInput" />
+    </view>
+    <view class="form-row">
+      <label>上架</label>
+      <picker bindchange="onItemAvail" value="{{availIndex}}" range="{{availNames}}">
+        <view class="picker">{{availNames[availIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+  <view slot="footer">
+    <button class="btn" bindtap="closeItemForm">取消</button>
+    <button class="btn btn-primary" bindtap="saveItem">{{itemId ? '保存' : '新增'}}</button>
+  </view>
+</modal>

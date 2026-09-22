@@ -1,0 +1,71 @@
+page { display: flex; flex-direction: column; height: calc(100vh - 120rpx); box-sizing: border-box; }
+
+.table-strip {
+  flex: 0 0 auto;
+  background: #fff;
+  padding: 16rpx 20rpx;
+  white-space: nowrap;
+  border-bottom: 1rpx solid #e5e7eb;
+}
+.strip-empty { color: #9ca3af; font-size: 24rpx; padding: 12rpx 0; }
+.pill {
+  display: inline-block;
+  width: 200rpx;
+  margin-right: 16rpx;
+  padding: 14rpx 16rpx;
+  background: #f9fafb;
+  border: 1rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  vertical-align: top;
+}
+.pill.active { background: #eef2ff; border-color: #6366f1; }
+.pill-name { font-size: 28rpx; font-weight: 500; color: #111827; margin-bottom: 6rpx; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pill-sub { display: flex; align-items: center; gap: 8rpx; font-size: 22rpx; color: #6b7280; flex-wrap: wrap; }
+.pill-cap { color: #6b7280; }
+.pill-total { color: #6366f1; font-weight: 500; }
+
+.main { flex: 1; display: flex; overflow: hidden; }
+
+/* 菜单 */
+.menu-area { flex: 1.6; display: flex; flex-direction: column; border-right: 1rpx solid #e5e7eb; background: #fff; }
+.cat-bar { display: flex; align-items: center; padding: 12rpx 16rpx; border-bottom: 1rpx solid #f3f4f6; gap: 12rpx; }
+.cat-scroll { flex: 1; white-space: nowrap; }
+.cat { display: inline-block; padding: 10rpx 20rpx; margin-right: 10rpx; border-radius: 999rpx; background: #f3f4f6; font-size: 24rpx; color: #374151; }
+.cat.active { background: #6366f1; color: #fff; }
+.menu-scroll { flex: 1; padding: 16rpx; box-sizing: border-box; }
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; }
+.menu-cell { background: #f9fafb; border: 1rpx solid #e5e7eb; border-radius: 12rpx; padding: 16rpx; }
+.menu-cell.disabled { opacity: 0.45; }
+.m-name { font-size: 26rpx; font-weight: 500; color: #111827; margin-bottom: 6rpx; }
+.m-price { font-size: 28rpx; color: #6366f1; font-weight: 600; }
+.m-stock { font-size: 22rpx; color: #9ca3af; margin-top: 4rpx; }
+
+/* 订单区 */
+.order-area { flex: 1; display: flex; flex-direction: column; padding: 16rpx; background: #fff; overflow: hidden; }
+.order-empty, .order-filled { display: flex; flex-direction: column; height: 100%; }
+.order-head { display: flex; align-items: center; gap: 10rpx; margin-bottom: 12rpx; }
+.ord-name { font-size: 28rpx; font-weight: 600; color: #111827; }
+.ord-cap { font-size: 22rpx; color: #6b7280; }
+.order-items { flex: 1; }
+.empty-sm { text-align: center; color: #9ca3af; font-size: 24rpx; padding: 20rpx 0; }
+.oi-row { display: flex; align-items: center; padding: 12rpx 0; border-bottom: 1rpx solid #f3f4f6; }
+.oi-info { flex: 1; min-width: 0; }
+.oi-name { font-size: 26rpx; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oi-price { font-size: 22rpx; color: #6b7280; }
+.oi-ctrl { display: flex; align-items: center; gap: 8rpx; }
+.oi-btn { width: 44rpx; height: 44rpx; line-height: 44rpx; text-align: center; background: #f3f4f6; border-radius: 8rpx; font-size: 28rpx; color: #374151; }
+.oi-qty { min-width: 30rpx; text-align: center; font-size: 26rpx; }
+.oi-del { width: 44rpx; height: 44rpx; line-height: 44rpx; text-align: center; color: #ef4444; font-size: 28rpx; margin-left: 4rpx; }
+.order-total { display: flex; justify-content: space-between; align-items: center; padding: 14rpx 0; font-size: 26rpx; border-top: 1rpx solid #e5e7eb; margin-top: 8rpx; }
+.ord-total-num { font-size: 32rpx; font-weight: 700; color: #6366f1; }
+.order-actions { display: flex; flex-direction: column; gap: 12rpx; margin-top: 12rpx; }
+
+/* 菜品管理列表 */
+.mgr-row { display: flex; align-items: center; justify-content: space-between; padding: 14rpx 0; border-bottom: 1rpx solid #f3f4f6; gap: 12rpx; }
+.mgr-info { flex: 1; min-width: 0; }
+.mgr-name { font-size: 28rpx; color: #111827; }
+.mgr-sub { font-size: 22rpx; color: #6b7280; margin-top: 4rpx; }
+.mgr-btns { display: flex; gap: 10rpx; }
+
+.picker { padding: 16rpx 20rpx; background: #f9fafb; border: 1rpx solid #e5e7eb; border-radius: 10rpx; font-size: 28rpx; }
+.empty { text-align: center; padding: 40rpx 0; color: #9ca3af; font-size: 24rpx; }

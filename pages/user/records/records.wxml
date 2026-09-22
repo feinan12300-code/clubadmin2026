@@ -1,0 +1,27 @@
+<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="records"></venue-subnav>
+
+<view class="container">
+  <view class="card">
+    <view class="card-title">
+      <text>消费记录</text>
+      <text class="sub">共 {{count}} 笔 / 合计 ¥{{totalStr}}</text>
+    </view>
+
+    <view wx:if="{{records.length === 0}}" class="empty">
+      <view class="empty-icon">🧾</view>
+      <view>暂无消费记录</view>
+    </view>
+
+    <view wx:else class="rec-list">
+      <view class="rec-item" wx:for="{{records}}" wx:key="id">
+        <view class="rec-head">
+          <text class="rec-time">{{item.timeStr}}</text>
+          <text class="rec-total">¥{{item.totalStr}}</text>
+        </view>
+        <view class="rec-meta">桌台：{{item.tableNames}}</view>
+        <view class="rec-meta">支付方式：{{item.methodLabel}}</view>
+        <view wx:if="{{item.discount && item.discount > 0}}" class="rec-meta">优惠：-¥{{item.discount}}</view>
+      </view>
+    </view>
+  </view>
+</view>

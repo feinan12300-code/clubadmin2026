@@ -1,0 +1,103 @@
+<venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="reservation"></venue-subnav>
+
+<view class="container">
+  <view class="card">
+    <view class="card-title">
+      <text>预订排位</text>
+      <button class="btn btn-primary btn-sm" bindtap="openAdd">+ 新建预订</button>
+    </view>
+    <view class="form-row">
+      <label>预订日期</label>
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <view class="picker">{{date}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">
+      <text>当日预订（{{reservations.length}} 条）</text>
+    </view>
+    <view wx:if="{{reservations.length === 0}}" class="empty">
+      <view class="empty-icon">📅</view>
+      <view>当日暂无预订</view>
+    </view>
+    <view wx:else>
+      <view class="res-item" wx:for="{{reservations}}" wx:key="id">
+        <view class="res-head">
+          <text class="res-time">{{item.time}}</text>
+          <text class="tag tag-{{item.status}}">{{item.statusLabel}}</text>
+        </view>
+        <view class="res-info">
+          <text class="res-name">{{item.customerName}}</text>
+          <text class="res-meta">{{item.partySize}} 人</text>
+          <text class="res-meta">微信：{{item.wechat || '-'}}</text>
+          <text wx:if="{{item.phone}}" class="res-meta">{{item.phone}}</text>
+        </view>
+        <view class="res-table">
+          桌台：<text wx:if="{{item.tableName}}" class="res-tbl">{{item.tableName}}</text>
+          <text wx:else class="res-unset">未指派</text>
+        </view>
+        <view wx:if="{{item.notes}}" class="res-notes">备注：{{item.notes}}</view>
+        <view class="actions">
+          <button wx:if="{{item.status === 'pending' && isAdmin}}" class="btn btn-sm btn-primary" bindtap="onSeat" data-id="{{item.id}}">到店入座</button>
+          <button wx:if="{{item.status === 'pending' && isAdmin}}" class="btn btn-sm" bindtap="openEdit" data-id="{{item.id}}">改派</button>
+          <button wx:if="{{item.status === 'pending'}}" class="btn btn-sm btn-danger" bindtap="onCancel" data-id="{{item.id}}">取消</button>
+          <button wx:if="{{item.status === 'seated' && isAdmin}}" class="btn btn-sm btn-danger" bindtap="onNohow" data-id="{{item.id}}">标记未到</button>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 新建/编辑弹窗 -->
+<modal show="{{formShow}}" title="{{formId ? '编辑预订 / 改派' : '新建预订'}}" bind:close="closeForm">
+  <view class="form-row">
+    <label>贵姓 *</label>
+    <input value="{{form.customerName}}" data-key="customerName" bindinput="onInput" placeholder="客户姓氏" />
+  </view>
+  <view class="form-row">
+    <label>微信 *</label>
+    <input value="{{form.wechat}}" data-key="wechat" bindinput="onInput" placeholder="微信号" />
+  </view>
+  <view class="form-row">
+    <label>电话</label>
+    <input value="{{form.phone}}" data-key="phone" bindinput="onInput" placeholder="选填" />
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>预订日期 *</label>
+      <picker mode="date" value="{{form.date}}" bindchange="onFormDate">
+        <view class="picker">{{form.date}}</view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <label>到店时间 *</label>
+      <picker mode="time" value="{{form.time}}" bindchange="onFormTime">
+        <view class="picker">{{form.time}}</view>
+      </picker>
+    </view>
+  </view>
+  <view class="form-row">
+    <label>人数 *</label>
+    <input type="number" value="{{form.partySize}}" data-key="partySize" bindinput="onInput" />
+  </view>
+  <view class="form-row">
+    <label>指派桌台</label>
+    <view class="assign-row">
+      <picker bindchange="onTablePick" value="{{tableIndex}}" range="{{tableLabels}}">
+        <view class="picker">{{tableLabels[tableIndex] || '— 不指派 —'}}</view>
+      </picker>
+      <button class="btn btn-sm" bindtap="onRecommend">智能推荐</button>
+    </view>
+    <view class="hint">{{recommendHint}}</view>
+  </view>
+  <view class="form-row">
+    <label>备注</label>
+    <textarea value="{{form.notes}}" data-key="notes" bindinput="onInput"></textarea>
+  </view>
+  <view slot="footer">
+    <button class="btn" bindtap="closeForm">取消</button>
+    <button class="btn btn-primary" bindtap="onSave">{{formId ? '保存' : '创建预订'}}</button>
+  </view>
+</modal>
