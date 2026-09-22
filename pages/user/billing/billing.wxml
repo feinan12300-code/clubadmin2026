@@ -1,41 +1,6 @@
 <venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="billing"></venue-subnav>
 
 <scroll-view scroll-y class="container">
-  <!-- 营业统计 -->
-  <view class="card">
-    <view class="card-title">
-      <text>📊 今日营业统计</text>
-      <text class="sub">截至 {{stats.timeStr}}</text>
-    </view>
-    <view class="stat-grid">
-      <view class="stat-card">
-        <view class="stat-value">¥{{stats.todayRevenueStr}}</view>
-        <view class="stat-label">今日营业额</view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-value">{{stats.todayOrderCount}}</view>
-        <view class="stat-label">今日订单数</view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-value">{{stats.tableUsage}}%</view>
-        <view class="stat-label">桌台利用率</view>
-      </view>
-      <view class="stat-card">
-        <view class="stat-value">¥{{stats.avgPerOrderStr}}</view>
-        <view class="stat-label">客单价</view>
-      </view>
-    </view>
-    <view wx:if="{{stats.topItems.length > 0}}" class="top-list">
-      <view class="top-title">🔥 今日热销 Top 5</view>
-      <view wx:for="{{stats.topItems}}" wx:key="name" class="top-row">
-        <text class="top-rank">{{index + 1}}</text>
-        <text class="top-name">{{item.name}}</text>
-        <text class="top-meta">{{item.qty}} 份 / ¥{{item.revenueStr}}</text>
-      </view>
-    </view>
-    <view wx:else class="empty">暂无销售数据</view>
-  </view>
-
   <!-- 待结算订单 -->
   <view class="card">
     <view class="card-title">

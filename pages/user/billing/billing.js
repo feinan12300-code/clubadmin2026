@@ -16,7 +16,6 @@ Page({
   data: {
     venueId: '',
     venueName: '',
-    stats: { todayRevenueStr: '0.00', todayOrderCount: 0, tableUsage: 0, avgPerOrderStr: '0.00', topItems: [], timeStr: '' },
     openOrders: [],
     selectedCount: 0,
     // 结算弹窗
@@ -80,51 +79,6 @@ Page({
         })
     }
     this.setData({ openOrders, selectedCount: 0 })
-    // 统计
-    this.setData({ stats: this.computeStats(venueId) })
-  },
-
-  computeStats(venueId) {
-    const today = util.today()
-    const settlements = Store.settlementsByVenue(venueId).filter(s => {
-      const d = new Date(s.paidAt)
-      const pad = n => String(n).padStart(2, '0')
-      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` === today
-    })
-    const todayRevenue = settlements.reduce((s, st) => s + st.total, 0)
-    const orderIds = new Set()
-    settlements.forEach(s => s.orderIds.forEach(id => orderIds.add(id)))
-    const todayOrderCount = orderIds.size
-    const allTables = Store.tablesByVenue(venueId)
-    const openTables = Store.ordersByVenue(venueId).filter(o => o.status === 'open').length
-    const tableUsage = allTables.length === 0 ? 0 : Math.round(openTables / allTables.length * 100)
-    const avgPerOrder = todayOrderCount > 0 ? todayRevenue / todayOrderCount : 0
-
-    const itemMap = {}
-    settlements.forEach(s => {
-      s.orderIds.forEach(oid => {
-        const o = Store.getById(Store.KEYS.orders, oid)
-        if (!o) return
-        ;(o.items || []).forEach(it => {
-          if (!itemMap[it.itemId]) itemMap[it.itemId] = { name: it.name, qty: 0, revenue: 0 }
-          itemMap[it.itemId].qty += it.qty
-          itemMap[it.itemId].revenue += it.price * it.qty
-        })
-      })
-    })
-    const topItems = Object.values(itemMap)
-      .sort((a, b) => b.qty - a.qty)
-      .slice(0, 5)
-      .map(it => Object.assign({}, it, { revenueStr: fmtMoney(it.revenue) }))
-
-    return {
-      todayRevenueStr: fmtMoney(todayRevenue),
-      todayOrderCount,
-      tableUsage,
-      avgPerOrderStr: fmtMoney(avgPerOrder),
-      topItems,
-      timeStr: util.formatTime(Date.now()),
-    }
   },
 
   toggleCheck(e) {
