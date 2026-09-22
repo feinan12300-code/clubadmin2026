@@ -29,6 +29,9 @@ Page({
     statusIndex: 0,
     typeNames: TYPE_LIST.map(t => TYPE_DEFAULTS[t].label),
     statusNames: ['空闲', '占用', '预留'],
+    // 添加台位表单
+    addFormShow: false,
+    addForm: { name: '', typeIdx: 0, capacity: '', x: '', y: '' },
   },
 
   canvas: null,
@@ -85,6 +88,8 @@ Page({
   },
 
   onTouchStart(e) {
+    // inspector/添加表单显示时不响应画布触摸，避免 modal 与画布层级错乱、上下滑穿透
+    if (this.data.inspectorShow || this.data.addFormShow) return
     this.updateCanvasRect()
     const { x, y } = this.getTouchPos(e)
     if (this.data.tool === 'select') {
@@ -107,6 +112,7 @@ Page({
   },
 
   onTouchMove(e) {
+    if (this.data.inspectorShow || this.data.addFormShow) return
     if (!this.drag) return
     const { x, y } = this.getTouchPos(e)
     const t = Store.getById(Store.KEYS.tables, this.drag.id)
@@ -302,6 +308,43 @@ Page({
         util.toast('已删除', 'success')
       },
     })
+  },
+
+  // ============ 添加台位表单 ============
+  openAddForm() {
+    this.setData({
+      addFormShow: true,
+      addForm: { name: '', typeIdx: 0, capacity: '', x: '', y: '' },
+    })
+  },
+  closeAddForm() { this.setData({ addFormShow: false }) },
+  onAddInput(e) {
+    const key = e.currentTarget.dataset.key
+    this.setData({ [`addForm.${key}`]: e.detail.value })
+  },
+  onAddType(e) {
+    this.setData({ 'addForm.typeIdx': Number(e.detail.value) })
+  },
+  addTableSubmit() {
+    const { name, typeIdx, capacity, x, y } = this.data.addForm
+    const trimmedName = (name || '').trim()
+    if (!trimmedName) { util.toast('请填写台位名称', 'none'); return }
+    const cap = parseInt(capacity, 10)
+    if (!cap || cap < 1) { util.toast('请填写有效容量', 'none'); return }
+    const type = TYPE_LIST[typeIdx]
+    const def = TYPE_DEFAULTS[type]
+    // 位置：未填则放在画布中心，避免重叠可手动调整
+    const px = x === '' ? Math.max(0, (this.canvasW - def.w) / 2) : Math.max(0, Math.min(this.canvasW - def.w, Number(x) || 0))
+    const py = y === '' ? Math.max(0, (this.canvasH - def.h) / 2) : Math.max(0, Math.min(this.canvasH - def.h, Number(y) || 0))
+    const t = Store.create(Store.KEYS.tables, {
+      venueId: this.data.venueId, name: trimmedName, type, capacity: cap,
+      x: px, y: py, w: def.w, h: def.h, status: 'idle',
+    }, { prefix: 'tbl', noTimestamp: true })
+    this.setData({ addFormShow: false })
+    this.loadTables()
+    this.openInspector(t.id)
+    this.draw()
+    util.toast(`已添加 ${trimmedName}`, 'success')
   },
 
   draw() {

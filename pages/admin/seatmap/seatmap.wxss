@@ -37,9 +37,17 @@
   box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.28);
 }
 .tool-btn.danger { background: #fee2e2; color: #ef4444; }
+.tool-btn.primary {
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  box-shadow: 0 4rpx 12rpx rgba(99, 102, 241, 0.28);
+}
 
 /* 画布容器：圆角 24rpx、柔和阴影 */
+/* position + z-index 确保 modal（z-index:1000）显示在 canvas 之上，避免原生 canvas 层级穿透 */
 .canvas-wrap {
+  position: relative;
+  z-index: 1;
   background: #fff;
   border-radius: 24rpx;
   padding: 12rpx;

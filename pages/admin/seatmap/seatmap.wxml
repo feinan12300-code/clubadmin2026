@@ -26,6 +26,7 @@
     <view class="tool-group">
       <view class="tool-label">操作</view>
       <view class="tool-btns">
+        <view class="tool-btn primary" bindtap="openAddForm">+ 添加台位</view>
         <view class="tool-btn" bindtap="apply13Tang">应用拾叁唐布局</view>
         <view class="tool-btn danger" bindtap="onClearAll">清空全部</view>
       </view>
@@ -69,5 +70,37 @@
   <view slot="footer">
     <button class="btn btn-danger" bindtap="onDeleteTable">删除桌台</button>
     <button class="btn btn-primary" bindtap="closeInspector">完成</button>
+  </view>
+</modal>
+
+<!-- 添加台位表单 -->
+<modal show="{{addFormShow}}" title="添加台位" bind:close="closeAddForm">
+  <view class="form-row">
+    <label>台位名称 *</label>
+    <input value="{{addForm.name}}" data-key="name" bindinput="onAddInput" placeholder="例如：A1 或 BOSS37" />
+  </view>
+  <view class="form-row">
+    <label>类型</label>
+    <picker bindchange="onAddType" value="{{addForm.typeIdx}}" range="{{typeNames}}">
+      <view class="picker">{{typeNames[addForm.typeIdx]}}</view>
+    </picker>
+  </view>
+  <view class="form-row">
+    <label>容纳人数 *</label>
+    <input type="number" value="{{addForm.capacity}}" data-key="capacity" bindinput="onAddInput" placeholder="例如：4" />
+  </view>
+  <view class="form-grid">
+    <view class="form-row">
+      <label>X 坐标（可空）</label>
+      <input type="number" value="{{addForm.x}}" data-key="x" bindinput="onAddInput" placeholder="留空居中" />
+    </view>
+    <view class="form-row">
+      <label>Y 坐标（可空）</label>
+      <input type="number" value="{{addForm.y}}" data-key="y" bindinput="onAddInput" placeholder="留空居中" />
+    </view>
+  </view>
+  <view slot="footer">
+    <button class="btn" bindtap="closeAddForm">取消</button>
+    <button class="btn btn-primary" bindtap="addTableSubmit">添加</button>
   </view>
 </modal>
