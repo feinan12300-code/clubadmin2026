@@ -5,6 +5,19 @@
     <view class="vh-sub">请选择您本次就座的桌位</view>
   </view>
 
+  <!-- 已绑定桌位提示条 -->
+  <view wx:if="{{hasBinding}}" class="bind-banner">
+    <view class="bb-icon">✓</view>
+    <view class="bb-info">
+      <view class="bb-title">已绑定 {{boundTableName}}</view>
+      <view class="bb-sub">类型：{{boundTableType}} · 一个用户只能绑定一个桌位</view>
+    </view>
+    <view class="bb-actions">
+      <view class="bb-btn bb-btn-primary" bindtap="goOrdering">去点单</view>
+      <view class="bb-btn bb-btn-ghost" bindtap="switchTable">解除</view>
+    </view>
+  </view>
+
   <!-- 空闲桌台网格 -->
   <view wx:if="{{tables.length === 0}}" class="empty">
     <view class="empty-icon">🪑</view>
@@ -12,11 +25,11 @@
     <view class="empty-tip">请稍后再试或联系门店工作人员</view>
   </view>
 
-  <view wx:else class="table-grid">
+  <view wx:else class="table-grid {{hasBinding ? 'grid-locked' : ''}}">
     <view
       wx:for="{{tables}}"
       wx:key="id"
-      class="table-card {{boundTableId === item.id ? 'bound' : ''}}"
+      class="table-card {{hasBinding ? 'locked' : ''}}"
       bindtap="bindTable"
       data-id="{{item.id}}"
     >
@@ -31,5 +44,8 @@
   </view>
 
   <!-- 底部提示 -->
-  <view class="bottom-tip">请选择您的桌位号</view>
+  <view class="bottom-tip">
+    <block wx:if="{{hasBinding}}">您已绑定桌位，请前往点单或先解除绑定</block>
+    <block wx:else>请选择您的桌位号</block>
+  </view>
 </view>

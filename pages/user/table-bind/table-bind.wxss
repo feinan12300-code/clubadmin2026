@@ -22,6 +22,62 @@
   opacity: 0.9;
 }
 
+/* 已绑定桌位提示条 */
+.bind-banner {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  background: linear-gradient(135deg, #eef2ff, #fff);
+  border: 2rpx solid #c7d2fe;
+  border-radius: 20rpx;
+  padding: 24rpx 22rpx;
+  margin-bottom: 28rpx;
+  box-shadow: 0 4rpx 14rpx rgba(99, 102, 241, 0.18);
+}
+.bb-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.bb-info { flex: 1; min-width: 0; }
+.bb-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4rpx;
+}
+.bb-sub {
+  font-size: 22rpx;
+  color: #6b7280;
+}
+.bb-actions { display: flex; gap: 12rpx; flex-shrink: 0; }
+.bb-btn {
+  padding: 14rpx 22rpx;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  line-height: 1;
+}
+.bb-btn-primary {
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  box-shadow: 0 4rpx 10rpx rgba(99, 102, 241, 0.25);
+}
+.bb-btn-ghost {
+  background: #fff;
+  color: #ef4444;
+  border: 2rpx solid #fecaca;
+}
+.bb-btn:active { transform: scale(0.96); opacity: 0.9; }
+
 /* 桌台网格 */
 .table-grid {
   display: grid;
@@ -29,6 +85,7 @@
   gap: 20rpx;
   padding-bottom: 140rpx;
 }
+.grid-locked .table-card { opacity: 0.45; }
 
 /* 桌台卡片：圆角 20rpx，白底，阴影，active 反馈 */
 .table-card {
@@ -49,6 +106,9 @@
   border-color: #6366f1;
   background: linear-gradient(135deg, #eef2ff, #fff);
   box-shadow: 0 4rpx 16rpx rgba(99, 102, 241, 0.2);
+}
+.table-card.locked {
+  pointer-events: none;
 }
 
 /* 桌台名：30rpx，600 */

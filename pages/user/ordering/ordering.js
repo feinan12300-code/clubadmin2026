@@ -76,9 +76,9 @@ Page({
 
     this.setData({ activeTableId: table.id, hasBinding: true })
 
-    // 如果桌台为空闲，自动开台（创建 open 订单 + 标记 occupied）
+    // 自动开台：绑定时桌台已置 occupied，但若无 open 订单则创建一个
     let order = Store.ordersByVenue(venueId).find(o => o.tableId === table.id && o.status === 'open')
-    if (!order && table.status === 'idle') {
+    if (!order) {
       order = Store.create(Store.KEYS.orders, {
         venueId,
         tableId: table.id,

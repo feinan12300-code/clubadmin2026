@@ -129,24 +129,43 @@ function setRole(role) {
 }
 
 // 用户桌台绑定：以 token 为键，存储 { token, venueId, tableId }
+// 约束：一个 token 同时只能绑定一个桌台
 function getUserTable(token) {
   if (!token) return null
   const arr = read(KEYS.userTable)
   return arr.find(r => r.token === token) || null
 }
+// 绑定桌台：覆盖式写入。若之前已绑定其他桌台，先释放旧桌台状态。
+// 同时将新桌台状态置为 occupied，确保其他用户无法重复选择。
 function setUserTable(token, venueId, tableId) {
   if (!token) return
   const arr = read(KEYS.userTable)
   const idx = arr.findIndex(r => r.token === token)
+  // 若已有绑定且不是同一个桌台，先释放旧桌台
+  if (idx !== -1) {
+    const old = arr[idx]
+    if (old.tableId !== tableId) {
+      update(KEYS.tables, old.tableId, { status: 'idle' })
+    }
+  }
   const record = { token, venueId, tableId }
   if (idx === -1) arr.push(record)
   else arr[idx] = record
   write(KEYS.userTable, arr)
+  // 同步将新桌台标记为占用，确保其他用户看不到该桌台
+  update(KEYS.tables, tableId, { status: 'occupied' })
 }
+// 解除绑定：同时把绑定的桌台释放为 idle（结算后由 billing 调用，
+// 或用户主动切换桌台时由 switchTable 调用）
 function clearUserTable(token) {
   if (!token) return
-  const arr = read(KEYS.userTable).filter(r => r.token !== token)
-  write(KEYS.userTable, arr)
+  const arr = read(KEYS.userTable)
+  const binding = arr.find(r => r.token === token)
+  if (binding) {
+    // 释放该桌台
+    update(KEYS.tables, binding.tableId, { status: 'idle' })
+  }
+  write(KEYS.userTable, arr.filter(r => r.token !== token))
 }
 
 module.exports = {
