@@ -77,6 +77,124 @@
 }
 .add-fab:active { transform: scale(0.92); }
 
+/* ============ 表单输入框修复 ============ */
+/* 覆盖全局 .form-grid 两列布局，改为单列，避免电话/营业时间输入框被挤窄换行 */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+/* 确保 input 在 modal 内显式 block + 100% 宽度 + 合适高度，避免不显示或被换行 */
+.form-row {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 24rpx;
+}
+.form-row label {
+  display: block;
+  width: 100%;
+  font-size: 26rpx;
+  color: #374151;
+  margin-bottom: 10rpx;
+  font-weight: 500;
+}
+.form-row input,
+.form-row picker,
+.form-row .picker {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 72rpx;
+  padding: 18rpx 20rpx;
+  font-size: 28rpx;
+  background: #f9fafb;
+  border: 2rpx solid #e5e7eb;
+  border-radius: 12rpx;
+  color: #111827;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.form-row input:focus {
+  border-color: #6366f1;
+  background: #fff;
+}
+
+/* ============ 台位管理区块 ============ */
+.table-section {
+  margin-top: 16rpx;
+  padding-top: 24rpx;
+  border-top: 2rpx dashed #e5e7eb;
+}
+.section-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 16rpx;
+}
+.table-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+.table-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 20rpx;
+  background: #f9fafb;
+  border: 1rpx solid #e5e7eb;
+  border-radius: 12rpx;
+}
+.ti-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+  flex: 1;
+  min-width: 0;
+}
+.ti-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111827;
+}
+.ti-meta {
+  font-size: 22rpx;
+  color: #6b7280;
+}
+.ti-status-idle { color: #10b981; }
+.ti-status-occupied { color: #ef4444; }
+.ti-status-reserved { color: #f59e0b; }
+.ti-del {
+  font-size: 24rpx;
+  color: #ef4444;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid #ef4444;
+  border-radius: 999rpx;
+  flex-shrink: 0;
+}
+.ti-del:active { opacity: 0.6; }
+.empty-mini {
+  text-align: center;
+  font-size: 24rpx;
+  color: #9ca3af;
+  padding: 24rpx 0;
+}
+
+/* 添加台位子表单 */
+.table-form {
+  margin-top: 12rpx;
+  padding: 20rpx;
+  background: #f3f4f6;
+  border-radius: 12rpx;
+}
+.table-form-actions {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 8rpx;
+}
+.table-form-actions .btn { flex: 1; }
+
 /* 空状态 */
 .empty {
   text-align: center;

@@ -2,6 +2,14 @@ const app = getApp()
 const Store = require('../../../utils/store.js')
 const util = require('../../../utils/util.js')
 
+// 台位类型选项
+const TABLE_TYPES = [
+  { key: 'round',  name: '圆桌' },
+  { key: 'square', name: '方桌' },
+  { key: 'booth',  name: '卡座' },
+  { key: 'bar',    name: '吧台' },
+]
+
 Page({
   data: {
     venues: [],
@@ -10,6 +18,11 @@ Page({
     formShow: false,
     formId: '',
     form: { name: '', address: '', phone: '', openHours: '' },
+    // 台位管理
+    tables: [],
+    tableTypes: TABLE_TYPES,
+    tableFormShow: false,
+    tableForm: { name: '', typeIdx: 0, capacity: '' },
   },
 
   onShow() {
@@ -45,6 +58,9 @@ Page({
       formShow: true,
       formId: '',
       form: { name: '', address: '', phone: '', openHours: '' },
+      tables: [],
+      tableFormShow: false,
+      tableForm: { name: '', typeIdx: 0, capacity: '' },
     })
   },
 
@@ -56,6 +72,9 @@ Page({
       formShow: true,
       formId: id,
       form: { name: v.name || '', address: v.address || '', phone: v.phone || '', openHours: v.openHours || '' },
+      tables: Store.tablesByVenue(id),
+      tableFormShow: false,
+      tableForm: { name: '', typeIdx: 0, capacity: '' },
     })
   },
 
@@ -74,6 +93,71 @@ Page({
     }
     this.setData({ formShow: false })
     this.refresh()
+  },
+
+  // ============ 台位增删 ============
+  openTableForm() {
+    this.setData({
+      tableFormShow: true,
+      tableForm: { name: '', typeIdx: 0, capacity: '' },
+    })
+  },
+
+  closeTableForm() {
+    this.setData({ tableFormShow: false })
+  },
+
+  onTableInput(e) {
+    const key = e.currentTarget.dataset.key
+    this.setData({ [`tableForm.${key}`]: e.detail.value })
+  },
+
+  onTableType(e) {
+    this.setData({ 'tableForm.typeIdx': Number(e.detail.value) })
+  },
+
+  addTable() {
+    const { name, typeIdx, capacity } = this.data.tableForm
+    const trimmedName = (name || '').trim()
+    if (!trimmedName) { util.toast('请填写台位名称', 'none'); return }
+    const cap = parseInt(capacity, 10)
+    if (!cap || cap < 1) { util.toast('请填写有效容纳人数', 'none'); return }
+    const typeKey = TABLE_TYPES[typeIdx].key
+    Store.create(Store.KEYS.tables, {
+      venueId: this.data.formId,
+      name: trimmedName,
+      type: typeKey,
+      capacity: cap,
+      status: 'idle',
+    }, { prefix: 'tbl' })
+    util.toast('台位已添加', 'success')
+    this.setData({
+      tables: Store.tablesByVenue(this.data.formId),
+      tableFormShow: false,
+      tableForm: { name: '', typeIdx: 0, capacity: '' },
+    })
+  },
+
+  removeTable(e) {
+    const id = e.currentTarget.dataset.id
+    const t = Store.getById(Store.KEYS.tables, id)
+    if (!t) return
+    // 占用中的台位不允许删除
+    if (t.status === 'occupied') {
+      util.toast('该台位正在被使用，无法删除', 'none')
+      return
+    }
+    wx.showModal({
+      title: '确认删除',
+      content: `确认删除台位「${t.name}」？`,
+      confirmColor: '#ef4444',
+      success: res => {
+        if (!res.confirm) return
+        Store.remove(Store.KEYS.tables, id)
+        util.toast('台位已删除', 'success')
+        this.setData({ tables: Store.tablesByVenue(this.data.formId) })
+      },
+    })
   },
 
   enterSeatmap(e) {

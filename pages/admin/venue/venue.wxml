@@ -50,6 +50,56 @@
       <input value="{{form.openHours}}" data-key="openHours" bindinput="onInput" placeholder="19:00 - 02:00" />
     </view>
   </view>
+
+  <!-- 台位管理：仅编辑已有门店时显示 -->
+  <view wx:if="{{formId}}" class="table-section">
+    <view class="section-title">台位管理（{{tables.length}}）</view>
+    <view class="table-list">
+      <view wx:for="{{tables}}" wx:key="id" class="table-item">
+        <view class="ti-info">
+          <text class="ti-name">{{item.name}}</text>
+          <text class="ti-meta">
+            <text wx:if="{{item.type === 'round'}}">圆桌</text>
+            <text wx:elif="{{item.type === 'square'}}">方桌</text>
+            <text wx:elif="{{item.type === 'booth'}}">卡座</text>
+            <text wx:elif="{{item.type === 'bar'}}">吧台</text>
+            <text wx:else>{{item.type}}</text>
+            / {{item.capacity}}人 /
+            <text wx:if="{{item.status === 'idle'}}" class="ti-status-idle">空闲</text>
+            <text wx:elif="{{item.status === 'occupied'}}" class="ti-status-occupied">占用</text>
+            <text wx:elif="{{item.status === 'reserved'}}" class="ti-status-reserved">已预定</text>
+          </text>
+        </view>
+        <view class="ti-del" bindtap="removeTable" data-id="{{item.id}}">删除</view>
+      </view>
+      <view wx:if="{{tables.length === 0}}" class="empty-mini">暂无台位，点击下方按钮添加</view>
+    </view>
+
+    <!-- 添加台位子表单 -->
+    <view wx:if="{{tableFormShow}}" class="table-form">
+      <view class="form-row">
+        <label>台位名称 *</label>
+        <input value="{{tableForm.name}}" data-key="name" bindinput="onTableInput" placeholder="例如：A1" />
+      </view>
+      <view class="form-row">
+        <label>类型</label>
+        <picker bindchange="onTableType" value="{{tableForm.typeIdx}}" range="{{tableTypes}}" range-key="name">
+          <view class="picker">{{tableTypes[tableForm.typeIdx].name}}</view>
+        </picker>
+      </view>
+      <view class="form-row">
+        <label>容纳人数 *</label>
+        <input type="number" value="{{tableForm.capacity}}" data-key="capacity" bindinput="onTableInput" placeholder="例如：4" />
+      </view>
+      <view class="table-form-actions">
+        <button class="btn btn-sm" bindtap="closeTableForm">取消</button>
+        <button class="btn btn-sm btn-primary" bindtap="addTable">添加</button>
+      </view>
+    </view>
+
+    <button wx:if="{{!tableFormShow}}" class="btn btn-sm btn-primary" bindtap="openTableForm">+ 添加台位</button>
+  </view>
+
   <view slot="footer">
     <button class="btn" bindtap="closeForm">取消</button>
     <button class="btn btn-primary" bindtap="onSave">{{formId ? '保存' : '创建'}}</button>
