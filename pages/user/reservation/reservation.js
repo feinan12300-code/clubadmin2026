@@ -97,16 +97,18 @@ Page({
     this.updateRecommend()
   },
 
-  // 桌台列表
+  // 桌台列表（强制选桌台：移除"— 不指派 —"选项）
   rebuildTableOptions() {
     const tables = Store.tablesByVenue(this.data.venueId)
     const formDate = this.data.form.date || this.data.date
     const busyTableIds = Store.reservationsByVenue(this.data.venueId)
       .filter(x => x.id !== this.data.formId && x.date === formDate && x.status === 'pending' && x.tableId)
       .map(x => x.tableId)
-    const options = [{ id: '', label: '— 不指派 —' }]
+    const options = []
     tables.forEach(t => {
       const busy = busyTableIds.includes(t.id)
+      // 仅列出空闲/已预定但未占用的桌台；已被占用的桌台不在选项中
+      if (t.status === 'occupied') return
       options.push({
         id: t.id,
         label: `${t.name} (${TYPE_LABEL[t.type] || t.type}/${t.capacity}人)${busy ? ' [同时段已订]' : ''}`,
@@ -120,6 +122,7 @@ Page({
       tableOptions: options,
       tableLabels: labels,
       tableIndex: idx,
+      'form.tableId': options[idx] ? options[idx].id : '',
     })
   },
 
@@ -214,6 +217,14 @@ Page({
     if (!f.wechat.trim()) { util.toast('请填写微信号'); return }
     if (!f.date || !f.time) { util.toast('请填写日期和时间'); return }
     if (!f.partySize || f.partySize < 1) { util.toast('请填写有效人数'); return }
+    // 强制选桌台：预定成功即绑定，用户才能进入门店
+    if (!f.tableId) {
+      const opts = this.data.tableOptions || []
+      if (opts.length === 0) { util.toast('该门店暂无可用桌台'); return }
+      // 用户未选时自动选第一个
+      this.setData({ 'form.tableId': opts[0].id, tableIndex: 0 })
+      f.tableId = opts[0].id
+    }
     const data = {
       customerName: f.customerName.trim(),
       wechat: (f.wechat || '').trim(),
@@ -245,10 +256,19 @@ Page({
       }
       util.toast('预订已更新', 'success')
     } else {
-      const r = Store.create(Store.KEYS.reservations, Object.assign({}, data, { venueId: this.data.venueId, status: 'pending' }), { prefix: 'res' })
+      // 写入用户 token：管理端指派台位时据此绑定到该用户
+      const token = app.getToken() || ''
+      const r = Store.create(Store.KEYS.reservations, Object.assign({}, data, {
+        venueId: this.data.venueId,
+        status: 'pending',
+        token,
+      }), { prefix: 'res' })
       if (r.tableId) {
-        const t = Store.getById(Store.KEYS.tables, r.tableId)
-        if (t && t.status !== 'occupied') Store.setTableStatus(this.data.venueId, r.tableId, 'reserved')
+        // 用户自选桌台：预定成功即绑定到该用户，使其回到门店列表时"进入门店"按钮可用
+        // setUserTable 会同步把桌台置为 occupied，其他用户无法重复选择
+        if (token) Store.setUserTable(token, this.data.venueId, r.tableId)
+      } else {
+        // 未选桌台：仅写预定，等待管理端在 reservation-notice 指派后绑定
       }
       // 通知管理端：新预订待指派台位
       const venue = Store.getById(Store.KEYS.venues, this.data.venueId)
@@ -256,6 +276,7 @@ Page({
         venueId: this.data.venueId,
         venueName: venue ? venue.name : '',
         reservationId: r.id,
+        token,
         customerName: r.customerName,
         wechat: r.wechat,
         phone: r.phone,

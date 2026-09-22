@@ -50,6 +50,75 @@
   box-shadow: 0 6rpx 24rpx rgba(99, 102, 241, 0.22);
 }
 
+/* 动态台位统计条：紧贴卡片顶部、整行展示 */
+.vc-stats {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 14rpx 18rpx;
+  background: linear-gradient(135deg, #f5f7ff, #eef2ff);
+  border-radius: 16rpx;
+  margin-bottom: 18rpx;
+  border: 1rpx solid #e0e7ff;
+}
+.vcs-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  font-size: 22rpx;
+  color: #4b5563;
+}
+.vcs-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  display: inline-block;
+}
+.vcs-num {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #111827;
+  margin-left: 2rpx;
+}
+.vcs-label {
+  font-size: 20rpx;
+  color: #6b7280;
+}
+.vcs-idle .vcs-dot { background: #10b981; }
+.vcs-occupied .vcs-dot { background: #ef4444; }
+.vcs-reserved .vcs-dot { background: #f59e0b; }
+.vcs-total {
+  margin-left: auto;
+  font-size: 22rpx;
+  color: #6b7280;
+  background: #fff;
+  padding: 4rpx 14rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid #e5e7eb;
+}
+
+/* 已指派台位提示 */
+.vc-bound {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 22rpx;
+  color: #047857;
+  background: #d1fae5;
+  border: 1rpx solid #6ee7b7;
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  margin-bottom: 14rpx;
+}
+.vcb-icon { font-size: 24rpx; }
+
+/* 进入按钮禁用态：置灰，无阴影，不可点视觉 */
+.vc-enter-disabled {
+  background: #e5e7eb !important;
+  color: #9ca3af !important;
+  box-shadow: none !important;
+}
+
 .vc-head {
   display: flex;
   justify-content: space-between;

@@ -1,51 +1,26 @@
 <view class="container">
-  <!-- 门店信息 -->
   <view class="venue-head">
     <view class="vh-name">{{venueName}}</view>
-    <view class="vh-sub">请选择您本次就座的桌位</view>
+    <view class="vh-sub">台位由门店指派</view>
   </view>
 
-  <!-- 已绑定桌位提示条 -->
+  <!-- 已有 binding：显示已指派台位并可直接去点单 -->
   <view wx:if="{{hasBinding}}" class="bind-banner">
-    <view class="bb-icon">✓</view>
+    <view class="bb-icon">🎟️</view>
     <view class="bb-info">
-      <view class="bb-title">已绑定 {{boundTableName}}</view>
-      <view class="bb-sub">类型：{{boundTableType}} · 一个用户只能绑定一个桌位</view>
+      <view class="bb-title">已指派台位：{{boundTableName}}</view>
+      <view class="bb-sub">由门店工作人员为您分配</view>
     </view>
     <view class="bb-actions">
       <view class="bb-btn bb-btn-primary" bindtap="goOrdering">去点单</view>
-      <view class="bb-btn bb-btn-ghost" bindtap="switchTable">解除</view>
     </view>
   </view>
 
-  <!-- 空闲桌台网格 -->
-  <view wx:if="{{tables.length === 0}}" class="empty">
-    <view class="empty-icon">🪑</view>
-    <view>当前暂无空闲桌位</view>
-    <view class="empty-tip">请稍后再试或联系门店工作人员</view>
-  </view>
-
-  <view wx:else class="table-grid {{hasBinding ? 'grid-locked' : ''}}">
-    <view
-      wx:for="{{tables}}"
-      wx:key="id"
-      class="table-card {{hasBinding ? 'locked' : ''}}"
-      bindtap="bindTable"
-      data-id="{{item.id}}"
-    >
-      <view class="tc-name">{{item.name}}</view>
-      <view class="tc-meta">
-        <text class="tc-type">{{item.typeLabel}}</text>
-        <text class="tc-cap">·</text>
-        <text class="tc-cap">{{item.capacity}}人</text>
-      </view>
-      <view class="tc-tag">空闲</view>
-    </view>
-  </view>
-
-  <!-- 底部提示 -->
-  <view class="bottom-tip">
-    <block wx:if="{{hasBinding}}">您已绑定桌位，请前往点单或先解除绑定</block>
-    <block wx:else>请选择您的桌位号</block>
+  <!-- 无 binding：提示去预定 -->
+  <view wx:else class="empty">
+    <view class="empty-icon">📭</view>
+    <view class="empty-title">尚未获得台位指派</view>
+    <view class="empty-tip">请先创建预定，待门店确认并指派台位后即可进入</view>
+    <view class="bb-btn bb-btn-primary" bindtap="goReservation">去预定</view>
   </view>
 </view>

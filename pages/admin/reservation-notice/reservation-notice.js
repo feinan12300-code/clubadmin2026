@@ -89,6 +89,12 @@ Page({
     const notice = Store.list(Store.KEYS.reservationNotices).find(x => x.id === noticeId)
     if (!notice) return
 
+    // 若不指派，则不允许保存（按新流程必须有具体台位）
+    if (!opt.id) {
+      util.toast('请选择具体台位')
+      return
+    }
+
     // 释放旧桌台（如有）
     if (notice.tableId && notice.tableId !== opt.id) {
       const stillReserved = Store.reservationsByVenue(notice.venueId)
@@ -97,22 +103,26 @@ Page({
     }
 
     // 更新预订记录的桌台
-    Store.update(Store.KEYS.reservations, notice.reservationId, { tableId: opt.id || null })
+    Store.update(Store.KEYS.reservations, notice.reservationId, { tableId: opt.id })
 
-    // 标记新桌台为预留
-    if (opt.id) {
-      const t = Store.getById(Store.KEYS.tables, opt.id)
-      if (t && t.status !== 'occupied') Store.setTableStatus(notice.venueId, opt.id, 'reserved')
+    // 关键：管理端指派台位后，自动将该桌台绑定到用户
+    // 用户凭借此 binding 才能进入门店；setUserTable 会同步把桌台置为 occupied
+    if (notice.token) {
+      Store.setUserTable(notice.token, notice.venueId, opt.id)
+    } else {
+      // 兼容旧数据：无 token 时仅标记为 reserved
+      const t0 = Store.getById(Store.KEYS.tables, opt.id)
+      if (t0 && t0.status !== 'occupied') Store.setTableStatus(notice.venueId, opt.id, 'reserved')
     }
 
     // 更新通知状态为已处理
     Store.update(Store.KEYS.reservationNotices, noticeId, {
       status: 'handled',
-      tableId: opt.id || '',
-      tableName: opt.id ? (Store.getById(Store.KEYS.tables, opt.id) || {}).name : '',
+      tableId: opt.id,
+      tableName: (Store.getById(Store.KEYS.tables, opt.id) || {}).name || '',
     })
 
-    util.toast('已指派台位', 'success')
+    util.toast('已指派台位并绑定用户', 'success')
     this.setData({ assignShow: false })
     this.refresh()
   },

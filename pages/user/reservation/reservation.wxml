@@ -58,15 +58,15 @@
         <text>客户信息</text>
       </view>
       <view class="rform-card">
-        <view class="rform-field rf-row">
+        <view class="rform-field">
           <view class="rf-label">贵姓<text class="rf-req">*</text></view>
           <input class="rf-input" value="{{form.customerName}}" data-key="customerName" bindinput="onInput" placeholder="请填写您的贵姓" placeholder-class="rf-ph" />
         </view>
-        <view class="rform-field rf-row">
+        <view class="rform-field">
           <view class="rf-label">微信<text class="rf-req">*</text></view>
           <input class="rf-input" value="{{form.wechat}}" data-key="wechat" bindinput="onInput" placeholder="微信号，便于联系" placeholder-class="rf-ph" />
         </view>
-        <view class="rform-field rf-row">
+        <view class="rform-field">
           <view class="rf-label">电话<text class="rf-opt">选填</text></view>
           <input class="rf-input" type="number" value="{{form.phone}}" data-key="phone" bindinput="onInput" placeholder="手机号码" placeholder-class="rf-ph" />
         </view>
@@ -115,7 +115,7 @@
           <view class="rf-label">指派桌台</view>
           <view class="assign-row">
             <picker bindchange="onTablePick" value="{{tableIndex}}" range="{{tableLabels}}">
-              <view class="rf-picker">{{tableLabels[tableIndex] || '— 不指派 —'}}<text class="rf-arrow">▾</text></view>
+              <view class="rf-picker">{{tableLabels[tableIndex] || '暂无可用桌台'}}<text class="rf-arrow">▾</text></view>
             </picker>
             <view class="rec-btn" bindtap="onRecommend">
               <text class="rec-icon">✨</text>

@@ -112,7 +112,11 @@
 }
 
 /* 字段 */
-.rform-field { }
+.rform-field {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
 .rf-label {
   display: flex;
   align-items: center;
@@ -157,6 +161,7 @@
 
 /* 输入框 */
 .rf-input {
+  display: block;
   width: 100%;
   padding: 20rpx 24rpx;
   font-size: 28rpx;
@@ -166,6 +171,7 @@
   box-sizing: border-box;
   color: #111827;
   transition: border-color 0.15s ease, background 0.15s ease;
+  min-height: 72rpx;
 }
 .rf-input:focus {
   border-color: #6366f1;

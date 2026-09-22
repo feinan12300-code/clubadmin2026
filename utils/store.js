@@ -93,6 +93,19 @@ function ordersByVenue(venueId)  { return read(KEYS.orders).filter(o => o.venueI
 function reservationsByVenue(venueId) { return read(KEYS.reservations).filter(r => r.venueId === venueId) }
 function settlementsByVenue(venueId) { return read(KEYS.settlements).filter(s => s.venueId === venueId) }
 
+// 桌台实时统计：返回 { total, idle, occupied, reserved }
+// 用于门店列表展示动态台位信息
+function tableStats(venueId) {
+  const tables = tablesByVenue(venueId)
+  const stats = { total: tables.length, idle: 0, occupied: 0, reserved: 0 }
+  tables.forEach(t => {
+    if (t.status === 'idle') stats.idle++
+    else if (t.status === 'occupied') stats.occupied++
+    else if (t.status === 'reserved') stats.reserved++
+  })
+  return stats
+}
+
 // 元数据：当前门店
 function getCurrentVenueId() {
   const meta = read(KEYS.meta)[0] || {}
@@ -183,6 +196,7 @@ module.exports = {
   ordersByVenue,
   reservationsByVenue,
   settlementsByVenue,
+  tableStats,
   getCurrentVenueId,
   setCurrentVenueId,
   isSeeded,

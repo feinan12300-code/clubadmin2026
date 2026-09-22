@@ -11,7 +11,32 @@
   </view>
 
   <view wx:else class="venue-grid">
-    <view class="venue-card" wx:for="{{venues}}" wx:key="id" bindtap="enterVenue" data-id="{{item.id}}" hover-class="venue-card-hover">
+    <view class="venue-card" wx:for="{{venues}}" wx:key="id" data-id="{{item.id}}">
+      <!-- 动态台位信息条：实时显示空闲/占用/已预定/总数 -->
+      <view class="vc-stats">
+        <view class="vcs-item vcs-idle">
+          <view class="vcs-dot"></view>
+          <text class="vcs-num">{{item.idleCount}}</text>
+          <text class="vcs-label">空闲</text>
+        </view>
+        <view class="vcs-item vcs-occupied">
+          <view class="vcs-dot"></view>
+          <text class="vcs-num">{{item.occupiedCount}}</text>
+          <text class="vcs-label">占用</text>
+        </view>
+        <view class="vcs-item vcs-reserved">
+          <view class="vcs-dot"></view>
+          <text class="vcs-num">{{item.reservedCount}}</text>
+          <text class="vcs-label">已预定</text>
+        </view>
+        <view class="vcs-total">共 {{item.tableCount}} 桌</view>
+      </view>
+      <!-- 已指派台位提示 -->
+      <view wx:if="{{item.canEnter}}" class="vc-bound">
+        <text class="vcb-icon">🎟️</text>
+        <text>已指派台位：{{item.boundTableName}}</text>
+      </view>
+
       <view class="vc-head">
         <view class="vc-name">{{item.name}}</view>
         <view class="vc-arrow">›</view>
@@ -26,13 +51,14 @@
       </view>
       <view class="vc-footer">
         <view class="vc-tags">
-          <view class="vc-tag"><text class="vc-icon">🪑</text> {{item.tableCount}} 个桌台</view>
           <view class="vc-tag vc-queue"><text class="vc-icon">⏳</text> 排队 {{item.queueCount}} 桌</view>
         </view>
         <view class="vc-actions">
-          <view class="vc-reserve" catchtap="goReservation" data-id="{{item.id}}">预定排队</view>
+          <view class="vc-reserve" catchtap="goReservation" data-id="{{item.id}}">去预定</view>
           <view class="vc-seats" catchtap="goVenueSeats" data-id="{{item.id}}">座位图</view>
-          <view class="vc-enter">进入门店</view>
+          <view class="vc-enter {{!item.canEnter ? 'vc-enter-disabled' : ''}}" catchtap="enterVenue" data-id="{{item.id}}">
+            {{item.canEnter ? '进入门店' : '需预定'}}
+          </view>
         </view>
       </view>
     </view>
