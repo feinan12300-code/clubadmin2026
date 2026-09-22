@@ -318,26 +318,50 @@ Page({
     ctx.fillStyle = color
     ctx.strokeStyle = selected ? '#6366f1' : 'rgba(255,255,255,0.4)'
     ctx.lineWidth = selected ? 3 : 1
+    // booth 圆角随尺寸自适应，避免小台位圆角过大变形
+    const r = Math.max(0, Math.min(8, t.w / 4, t.h / 4))
     if (t.type === 'round') {
       ctx.beginPath()
       ctx.ellipse(t.x + t.w / 2, t.y + t.h / 2, t.w / 2, t.h / 2, 0, 0, Math.PI * 2)
       ctx.fill(); ctx.stroke()
     } else if (t.type === 'booth') {
-      this.roundRect(ctx, t.x, t.y, t.w, t.h, 12)
+      this.roundRect(ctx, t.x, t.y, t.w, t.h, r)
       ctx.fill(); ctx.stroke()
     } else {
       ctx.fillRect(t.x, t.y, t.w, t.h)
       ctx.strokeRect(t.x, t.y, t.w, t.h)
     }
-    ctx.fillStyle = '#fff'
-    ctx.font = '12px sans-serif'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.fillText(t.name, t.x + t.w / 2, t.y + t.h / 2 - 6)
-    ctx.fillStyle = 'rgba(255,255,255,0.85)'
-    ctx.font = '9px sans-serif'
-    ctx.fillText(`${t.capacity}人`, t.x + t.w / 2, t.y + t.h / 2 + 8)
+    const name = String(t.name)
+    // 自适应字体：受台位宽（每字符约 0.6 倍字号）和高双重约束，避免文字溢出与相邻台位重叠
+    const fontByW = t.w / (name.length * 0.6)
+    const fontByH = t.h * 0.5
+    let fontSize = Math.max(6, Math.min(12, fontByW, fontByH))
+    // 大台位（≥36×36）：名称 + 容量分两行；小台位：只显示名称（过长截断）
+    if (t.w >= 36 && t.h >= 36) {
+      ctx.font = `${fontSize}px sans-serif`
+      this._paintText(ctx, name, t.x + t.w / 2, t.y + t.h / 2 - 6, '#fff')
+      ctx.font = `${Math.max(7, fontSize * 0.75)}px sans-serif`
+      this._paintText(ctx, `${t.capacity}人`, t.x + t.w / 2, t.y + t.h / 2 + 8, 'rgba(255,255,255,0.85)')
+    } else {
+      // 截断到能容纳的字符数
+      const maxChars = Math.max(1, Math.floor(t.w / (fontSize * 0.6)))
+      let display = name
+      if (name.length > maxChars) display = name.slice(0, Math.max(1, maxChars - 1)) + '…'
+      ctx.font = `${fontSize}px sans-serif`
+      this._paintText(ctx, display, t.x + t.w / 2, t.y + t.h / 2, '#fff')
+    }
     ctx.restore()
+  },
+
+  // 文字描边 + 填充，提升在彩色背景上的可读性
+  _paintText(ctx, text, x, y, fillStyle) {
+    ctx.lineWidth = 2
+    ctx.strokeStyle = 'rgba(0,0,0,0.55)'
+    ctx.strokeText(text, x, y)
+    ctx.fillStyle = fillStyle
+    ctx.fillText(text, x, y)
   },
 
   roundRect(ctx, x, y, w, h, r) {
