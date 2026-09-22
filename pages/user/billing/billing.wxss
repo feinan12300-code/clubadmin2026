@@ -1,179 +1,111 @@
-/* pages/user/billing/billing.wxss — 结算页面优化 */
+/* pages/user/billing/billing.wxss — 结算页面 */
 
 .container { padding: 24rpx; box-sizing: border-box; }
-.head-btns { display: flex; gap: 12rpx; }
 
-/* 热销榜 */
-.top-list { margin-top: 20rpx; padding-top: 16rpx; border-top: 1rpx solid #f3f4f6; }
-.top-title { font-size: 26rpx; color: #6b7280; margin-bottom: 14rpx; font-weight: 500; }
-.top-row {
+/* 消费明细列表 */
+.bill-list { padding: 4rpx 0; }
+.bill-row {
   display: flex;
-  align-items: center;
-  gap: 16rpx;
-  padding: 12rpx 0;
-  font-size: 26rpx;
-}
-.top-rank {
-  width: 36rpx;
-  height: 36rpx;
-  line-height: 36rpx;
-  text-align: center;
-  background: linear-gradient(135deg, #6366f1, #818cf8);
-  color: #fff;
-  border-radius: 50%;
-  font-size: 22rpx;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-.top-name { flex: 1; color: #111827; }
-.top-meta { color: #6b7280; font-size: 24rpx; }
-
-/* 待结算订单列表 */
-.order-list { padding-top: 8rpx; }
-.ord-row {
-  padding: 22rpx 0;
-  border-bottom: 1rpx solid #f3f4f6;
-}
-.ord-row:last-child { border-bottom: none; }
-.ord-top {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-.ord-check { padding: 8rpx; }
-.checkbox {
-  width: 36rpx;
-  height: 36rpx;
-  border: 2rpx solid #d1d5db;
-  border-radius: 8rpx;
-  position: relative;
-  transition: background 0.15s ease, border-color 0.15s ease;
-}
-.checkbox.on {
-  background: #6366f1;
-  border-color: #6366f1;
-}
-.checkbox.on::after {
-  content: '✓';
-  color: #fff;
-  font-size: 26rpx;
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ord-table {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #111827;
-  flex: 1;
-}
-.ord-time { font-size: 22rpx; color: #9ca3af; }
-.ord-total {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #ef4444;
-}
-.ord-detail {
-  font-size: 24rpx;
-  color: #6b7280;
-  margin: 10rpx 0 10rpx 60rpx;
-  line-height: 1.5;
-}
-.ord-actions {
-  display: flex;
-  gap: 12rpx;
-  margin-left: 60rpx;
-  margin-top: 8rpx;
-}
-
-/* 结算弹窗 */
-.settle-tables {
-  font-size: 26rpx;
-  color: #374151;
-  margin-bottom: 14rpx;
-  padding: 14rpx 20rpx;
-  background: #f9fafb;
-  border-radius: 12rpx;
-}
-.settle-items { max-height: 400rpx; }
-/* 商品明细：表格样式 */
-.si-row {
-  display: flex;
-  align-items: center;
-  padding: 12rpx 0;
-  font-size: 24rpx;
-  border-bottom: 1rpx solid #f3f4f6;
-  gap: 12rpx;
-}
-.si-row:last-child { border-bottom: none; }
-.si-name { flex: 1; color: #111827; }
-.si-price, .si-qty { color: #6b7280; min-width: 80rpx; }
-.si-price { text-align: left; }
-.si-qty { text-align: center; }
-.si-sub {
-  color: #111827;
-  font-weight: 600;
-  min-width: 100rpx;
-  text-align: right;
-}
-.settle-total {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 18rpx 0;
+  border-bottom: 1rpx solid #f3f4f6;
+  gap: 12rpx;
+}
+.bill-name {
+  flex: 1;
   font-size: 28rpx;
-  border-top: 2rpx solid #e5e7eb;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bill-qty {
+  font-size: 24rpx;
+  color: #6b7280;
+  min-width: 60rpx;
+  text-align: center;
+}
+.bill-sub {
+  font-size: 28rpx;
+  color: #ef4444;
+  font-weight: 600;
+  min-width: 120rpx;
+  text-align: right;
+}
+
+/* 合计 */
+.bill-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 20rpx 0 4rpx;
+  border-top: 2rpx solid #f3f4f6;
   margin-top: 8rpx;
 }
-.st-num {
-  font-size: 38rpx;
+.bs-label {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+.bs-num {
+  font-size: 40rpx;
   font-weight: 700;
   color: #ef4444;
 }
-.settle-orig {
-  text-align: right;
-  font-size: 22rpx;
-  color: #9ca3af;
-  text-decoration: line-through;
-}
 
-/* 拆分 */
-.hint {
-  font-size: 24rpx;
-  color: #6b7280;
-  margin-bottom: 16rpx;
-  line-height: 1.5;
-}
-.sp-row {
+/* 结算选项 */
+.form-row {
   display: flex;
   align-items: center;
-  gap: 12rpx;
-  padding: 14rpx 0;
+  padding: 16rpx 0;
   border-bottom: 1rpx solid #f3f4f6;
+  gap: 16rpx;
 }
-.sp-row:last-child { border-bottom: none; }
-.sp-name { flex: 1; color: #111827; font-size: 26rpx; }
-.sp-price, .sp-qty { color: #6b7280; font-size: 24rpx; min-width: 80rpx; }
-.sp-qty { text-align: center; }
-.sp-sub {
-  color: #111827;
-  font-weight: 600;
-  font-size: 24rpx;
-  min-width: 100rpx;
-  text-align: right;
+.form-row label {
+  font-size: 26rpx;
+  color: #6b7280;
+  width: 140rpx;
+  flex: 0 0 140rpx;
 }
-
-.picker {
-  padding: 20rpx 24rpx;
-  background: #f9fafb;
-  border: 2rpx solid #e5e7eb;
-  border-radius: 16rpx;
+.form-row input {
+  flex: 1;
   font-size: 28rpx;
   color: #111827;
-  box-sizing: border-box;
+  padding: 12rpx 16rpx;
+  background: #f9fafb;
+  border-radius: 12rpx;
+  border: 1rpx solid #e5e7eb;
 }
-.empty { text-align: center; padding: 40rpx 0; color: #9ca3af; font-size: 26rpx; }
-.empty-icon { font-size: 80rpx; margin-bottom: 12rpx; opacity: 0.85; }
-.empty-tip { font-size: 24rpx; color: #9ca3af; margin: 12rpx 0 20rpx; }
+.form-row .picker {
+  flex: 1;
+  font-size: 28rpx;
+  color: #111827;
+  padding: 12rpx 16rpx;
+  background: #f9fafb;
+  border-radius: 12rpx;
+  border: 1rpx solid #e5e7eb;
+}
+
+/* 应付金额 */
+.bill-pay {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 24rpx 0 20rpx;
+  margin-top: 8rpx;
+  border-top: 2rpx solid #f3f4f6;
+}
+.pay-label {
+  font-size: 28rpx;
+  color: #6b7280;
+}
+.pay-amount {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+/* 全宽按钮 */
+.btn-block {
+  width: 100%;
+  margin-top: 16rpx;
+}

@@ -1,58 +1,40 @@
 <venue-subnav venue-id="{{venueId}}" venue-name="{{venueName}}" active="billing"></venue-subnav>
 
 <scroll-view scroll-y class="container">
-  <!-- 待结算订单 -->
-  <view class="card">
-    <view class="card-title">
-      <text>待结算订单（{{openOrders.length}} 桌）</text>
-      <view class="head-btns">
-        <button class="btn btn-sm" bindtap="onMerge" disabled="{{selectedCount < 2}}">合并({{selectedCount}})</button>
-        <button class="btn btn-sm btn-primary" bindtap="onBatch" disabled="{{selectedCount === 0}}">批量({{selectedCount}})</button>
-      </view>
-    </view>
-
-    <view wx:if="{{openOrders.length === 0}}" class="empty">
+  <!-- 无订单空状态 -->
+  <view wx:if="{{allItems.length === 0}}" class="card">
+    <view class="empty">
       <view class="empty-icon">🧾</view>
-      <view>暂无待结算订单</view>
-      <view class="empty-tip">请先前往「点单」开台点单后再结算</view>
+      <view>暂无消费</view>
+      <view class="empty-tip">请先前往「点单」加菜后结算</view>
       <button class="btn btn-primary btn-sm" bindtap="goOrdering">去点单</button>
     </view>
+  </view>
 
-    <view wx:else class="order-list">
-      <view wx:for="{{openOrders}}" wx:key="id" class="ord-row">
-        <view class="ord-top">
-          <view class="ord-check" bindtap="toggleCheck" data-id="{{item.id}}">
-            <view class="checkbox {{item.checked ? 'on' : ''}}"></view>
-          </view>
-          <text class="ord-table">{{item.tableName}}</text>
-          <text class="ord-time">{{item.timeStr}}</text>
-          <text class="ord-total">¥{{item.totalStr}}</text>
-        </view>
-        <view class="ord-detail">{{item.detail}}</view>
-        <view class="ord-actions">
-          <button class="btn btn-sm btn-primary" bindtap="openSettle" data-id="{{item.id}}">结账</button>
-          <button class="btn btn-sm" bindtap="openSplit" data-id="{{item.id}}">拆分</button>
-        </view>
+  <!-- 消费明细 -->
+  <view wx:if="{{allItems.length > 0}}" class="card">
+    <view class="card-title">
+      <text>{{tableName}} 消费明细</text>
+    </view>
+    <view class="bill-list">
+      <view wx:for="{{allItems}}" wx:key="idx" class="bill-row">
+        <text class="bill-name">{{item.name}}</text>
+        <text class="bill-qty">×{{item.qty}}</text>
+        <text class="bill-sub">¥{{item.subStr}}</text>
       </view>
     </view>
-  </view>
-</scroll-view>
-
-<!-- 结算弹窗 -->
-<modal show="{{settleShow}}" title="{{settleOrders.length > 1 ? '合并结算（' + settleOrders.length + ' 桌）' : '结账'}}" bind:close="closeSettle">
-  <view class="settle-tables">桌台：{{settleTableNames}}</view>
-  <scroll-view scroll-y class="settle-items">
-    <view wx:for="{{settleItems}}" wx:key="idx" class="si-row">
-      <text class="si-name">{{item.name}}</text>
-      <text class="si-price">¥{{item.priceStr}}</text>
-      <text class="si-qty">×{{item.qty}}</text>
-      <text class="si-sub">¥{{item.subStr}}</text>
+    <view class="bill-summary">
+      <text class="bs-label">合计</text>
+      <text class="bs-num">¥{{totalStr}}</text>
     </view>
-  </scroll-view>
-  <view class="form-grid">
+  </view>
+
+  <!-- 结算选项 -->
+  <view wx:if="{{allItems.length > 0}}" class="card">
+    <view class="card-title"><text>结算选项</text></view>
     <view class="form-row">
       <label>折扣金额</label>
-      <input type="digit" value="{{discount}}" bindinput="onDiscount" />
+      <input type="digit" value="{{discount}}" bindinput="onDiscount" placeholder="0.00" />
     </view>
     <view class="form-row">
       <label>抹零</label>
@@ -60,46 +42,16 @@
         <view class="picker">{{roundNames[roundIndex]}}</view>
       </picker>
     </view>
+    <view class="form-row">
+      <label>支付方式</label>
+      <picker bindchange="onMethod" value="{{methodIndex}}" range="{{methodNames}}">
+        <view class="picker">{{methodNames[methodIndex]}}</view>
+      </picker>
+    </view>
+    <view class="bill-pay">
+      <view class="pay-label">应付</view>
+      <view class="pay-amount">¥{{payTotalStr}}</view>
+    </view>
+    <button class="btn btn-primary btn-block" bindtap="confirmSettle">确认结算</button>
   </view>
-  <view class="form-row">
-    <label>支付方式</label>
-    <picker bindchange="onMethod" value="{{methodIndex}}" range="{{methodNames}}">
-      <view class="picker">{{methodNames[methodIndex]}}</view>
-    </picker>
-  </view>
-  <view class="settle-total">
-    <text>应收</text>
-    <text class="st-num">¥{{settleTotalStr}}</text>
-  </view>
-  <view class="settle-orig">原价 ¥{{settleSubtotalStr}}</view>
-  <view slot="footer">
-    <button class="btn" bindtap="closeSettle">取消</button>
-    <button class="btn btn-primary" bindtap="confirmSettle">确认结算</button>
-  </view>
-</modal>
-
-<!-- 拆分结算弹窗 -->
-<modal show="{{splitShow}}" title="拆分结算 — {{splitTableName}}" bind:close="closeSplit">
-  <view class="hint">勾选本次要结算的菜品，未勾选的留作挂单</view>
-  <view wx:for="{{splitItems}}" wx:key="idx" class="sp-row" bindtap="toggleSplit" data-idx="{{index}}">
-    <view class="checkbox {{item.checked ? 'on' : ''}}"></view>
-    <text class="sp-name">{{item.name}}</text>
-    <text class="sp-price">¥{{item.priceStr}}</text>
-    <text class="sp-qty">×{{item.qty}}</text>
-    <text class="sp-sub">¥{{item.subStr}}</text>
-  </view>
-  <view class="settle-total">
-    <text>本次应收</text>
-    <text class="st-num">¥{{splitTotalStr}}</text>
-  </view>
-  <view class="form-row">
-    <label>支付方式</label>
-    <picker bindchange="onSplitMethod" value="{{splitMethodIndex}}" range="{{methodNames}}">
-      <view class="picker">{{methodNames[splitMethodIndex]}}</view>
-    </picker>
-  </view>
-  <view slot="footer">
-    <button class="btn" bindtap="closeSplit">取消</button>
-    <button class="btn btn-primary" bindtap="confirmSplit">结算选中项</button>
-  </view>
-</modal>
+</scroll-view>

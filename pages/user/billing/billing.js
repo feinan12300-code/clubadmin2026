@@ -16,27 +16,15 @@ Page({
   data: {
     venueId: '',
     venueName: '',
-    openOrders: [],
-    selectedCount: 0,
-    // 结算弹窗
-    settleShow: false,
-    settleOrders: [],
-    settleTableNames: '',
-    settleItems: [],
-    settleSubtotalStr: '0.00',
-    settleTotalStr: '0.00',
+    tableName: '',
+    allItems: [],      // 合并后的商品列表
+    totalStr: '0.00',   // 原价合计
+    payTotalStr: '0.00', // 应付（扣折扣/抹零后）
     discount: 0,
     roundIndex: 0,
     methodIndex: 1,
     roundNames: ROUND_NAMES,
     methodNames: METHOD_NAMES,
-    // 拆分
-    splitShow: false,
-    splitOrderId: '',
-    splitTableName: '',
-    splitItems: [],
-    splitTotalStr: '0.00',
-    splitMethodIndex: 1,
   },
 
   onLoad(options) {
@@ -44,116 +32,93 @@ Page({
     const venue = Store.getById(Store.KEYS.venues, venueId)
     this.setData({ venueId, venueName: venue ? venue.name : '' })
   },
+
   onShow() {
     this.refresh()
   },
+
   goOrdering() {
-    wx.redirectTo({ url: `/pages/user/ordering/ordering?venueId=${this.data.venueId}` })
-  },
-  onVenueChange(e) {
-    const venueId = e.detail.venueId
-    app.setCurrentVenue(venueId)
-    this.setData({ venueId, settleShow: false, splitShow: false })
-    this.refresh()
+    wx.redirectTo({ url: '/pages/user/ordering/ordering?venueId=' + this.data.venueId })
   },
 
   refresh() {
     const venueId = this.data.venueId
-    if (!venueId) { this.setData({ openOrders: [] }); return }
-    // 用户端：只显示绑定桌台的待结算订单
+    if (!venueId) { this.setData({ allItems: [] }); return }
+
+    // 读取绑定的桌台
     const token = app.getToken()
     const binding = Store.getUserTable(token)
-    const boundTableId = (binding && binding.venueId === venueId) ? binding.tableId : null
-    let openOrders = []
-    if (boundTableId) {
-      openOrders = Store.ordersByVenue(venueId).filter(o => o.status === 'open' && o.tableId === boundTableId)
-        .map(o => {
-          const t = Store.getById(Store.KEYS.tables, o.tableId)
-          return Object.assign({}, o, {
-            tableName: t ? t.name : '?',
-            timeStr: util.formatTime(o.createdAt),
-            totalStr: fmtMoney(orderTotal(o)),
-            detail: (o.items || []).map(it => `${it.name}×${it.qty}`).join('，') || '空',
-            checked: false,
-          })
-        })
+    if (!binding || binding.venueId !== venueId) {
+      this.setData({ allItems: [], tableName: '' })
+      return
     }
-    this.setData({ openOrders, selectedCount: 0 })
-  },
 
-  toggleCheck(e) {
-    const id = e.currentTarget.dataset.id
-    const openOrders = this.data.openOrders.map(o => o.id === id ? Object.assign({}, o, { checked: !o.checked }) : o)
-    const selectedCount = openOrders.filter(o => o.checked).length
-    this.setData({ openOrders, selectedCount })
-  },
+    const table = Store.getById(Store.KEYS.tables, binding.tableId)
+    const tableName = table ? table.name : '?'
 
-  // 结算弹窗
-  openSettle(e) {
-    const id = e.currentTarget.dataset.id
-    this._openSettleDialog([id])
-  },
-  onMerge() {
-    const ids = this.data.openOrders.filter(o => o.checked).map(o => o.id)
-    if (ids.length < 2) { util.toast('合并结算需勾选至少 2 个订单'); return }
-    this._openSettleDialog(ids)
-  },
-  onBatch() {
-    const ids = this.data.openOrders.filter(o => o.checked).map(o => o.id)
-    if (ids.length === 0) { util.toast('请先勾选订单'); return }
-    this._openSettleDialog(ids)
-  },
-  _openSettleDialog(orderIds) {
-    const orders = orderIds.map(id => Store.getById(Store.KEYS.orders, id)).filter(Boolean)
-    if (orders.length === 0) return
-    const subtotal = orders.reduce((s, o) => s + orderTotal(o), 0)
-    const tableNames = orders.map(o => { const t = Store.getById(Store.KEYS.tables, o.tableId); return t ? t.name : '?' })
-    const items = []
-    let idx = 0
-    orders.forEach(o => (o.items || []).forEach(it => {
-      items.push({ idx: idx++, name: it.name, priceStr: fmtMoney(it.price), qty: it.qty, subStr: fmtMoney(it.price * it.qty) })
-    }))
-    this.setData({
-      settleShow: true,
-      settleOrders: orders,
-      settleTableNames: tableNames.join('，'),
-      settleItems: items,
-      settleSubtotalStr: fmtMoney(subtotal),
-      discount: 0,
-      roundIndex: 0,
-      methodIndex: 1,
+    // 合并该桌台所有 open 订单的商品
+    const orders = Store.ordersByVenue(venueId).filter(o => o.status === 'open' && o.tableId === binding.tableId)
+    const itemMap = {}
+    orders.forEach(o => {
+      ;(o.items || []).forEach(it => {
+        if (!itemMap[it.itemId]) {
+          itemMap[it.itemId] = { name: it.name, price: it.price, qty: 0, itemId: it.itemId }
+        }
+        itemMap[it.itemId].qty += it.qty
+      })
     })
-    this._settleSubtotal = subtotal
-    this._updateSettleTotal()
+
+    const allItems = Object.values(itemMap).map(it => ({
+      ...it,
+      subStr: fmtMoney(it.price * it.qty),
+    }))
+    const total = allItems.reduce((s, it) => s + it.price * it.qty, 0)
+
+    this._orders = orders
+    this._subtotal = total
+    this.setData({
+      tableName,
+      allItems,
+      totalStr: fmtMoney(total),
+    })
+    this._updatePayTotal()
   },
+
   onDiscount(e) {
-    const v = Number(e.detail.value) || 0
-    this.setData({ discount: v })
-    this._updateSettleTotal()
+    this.setData({ discount: Number(e.detail.value) || 0 })
+    this._updatePayTotal()
   },
+
   onRound(e) {
     this.setData({ roundIndex: Number(e.detail.value) })
-    this._updateSettleTotal()
+    this._updatePayTotal()
   },
+
   onMethod(e) {
     this.setData({ methodIndex: Number(e.detail.value) })
   },
-  _updateSettleTotal() {
-    const subtotal = this._settleSubtotal || 0
+
+  _updatePayTotal() {
+    const subtotal = this._subtotal || 0
     const disc = this.data.discount || 0
     const round = this.data.roundIndex === 1
     let total = subtotal - disc
     if (round) total = Math.floor(total)
     if (total < 0) total = 0
-    this._settleTotal = total
-    this.setData({ settleTotalStr: fmtMoney(total) })
+    this._payTotal = total
+    this.setData({ payTotalStr: fmtMoney(total) })
   },
-  closeSettle() { this.setData({ settleShow: false }) },
+
   confirmSettle() {
-    const orderIds = this.data.settleOrders.map(o => o.id)
-    const subtotal = this._settleSubtotal
-    const total = this._settleTotal
+    if (!this._orders || this._orders.length === 0) {
+      util.toast('暂无可结算的订单')
+      return
+    }
+    const orderIds = this._orders.map(o => o.id)
+    const subtotal = this._subtotal
+    const total = this._payTotal
     const method = METHOD_LIST[this.data.methodIndex]
+
     Store.create(Store.KEYS.settlements, {
       venueId: this.data.venueId,
       orderIds,
@@ -163,87 +128,22 @@ Page({
       method,
       paidAt: Date.now(),
     }, { prefix: 'stl', noTimestamp: true })
+
     // 更新订单状态、释放桌台
-    const releasedTableIds = new Set()
+    const tableIds = new Set()
     orderIds.forEach(id => {
       const o = Store.getById(Store.KEYS.orders, id)
       if (o) {
         Store.update(Store.KEYS.orders, id, { status: 'settled', settledAt: Date.now() })
-        releasedTableIds.add(o.tableId)
+        tableIds.add(o.tableId)
       }
     })
-    releasedTableIds.forEach(tid => {
+    tableIds.forEach(tid => {
       const stillOpen = Store.ordersByVenue(this.data.venueId).some(o => o.tableId === tid && o.status === 'open')
       if (!stillOpen) Store.setTableStatus(this.data.venueId, tid, 'idle')
     })
-    this.setData({ settleShow: false })
-    util.toast(`结算成功：¥${fmtMoney(total)}（${METHOD_NAMES[this.data.methodIndex]}）`, 'success')
-    this.refresh()
-  },
 
-  // 拆分
-  openSplit(e) {
-    const id = e.currentTarget.dataset.id
-    const order = Store.getById(Store.KEYS.orders, id)
-    if (!order) return
-    const t = Store.getById(Store.KEYS.tables, order.tableId)
-    const splitItems = (order.items || []).map((it, idx) => ({
-      idx,
-      itemId: it.itemId,
-      name: it.name,
-      price: it.price,
-      priceStr: fmtMoney(it.price),
-      qty: it.qty,
-      subStr: fmtMoney(it.price * it.qty),
-      checked: true,
-    }))
-    this.setData({
-      splitShow: true,
-      splitOrderId: id,
-      splitTableName: t ? t.name : '?',
-      splitItems,
-      splitMethodIndex: 1,
-    })
-    this._updateSplitTotal()
-  },
-  toggleSplit(e) {
-    const idx = Number(e.currentTarget.dataset.idx)
-    const splitItems = this.data.splitItems.map((it, i) => i === idx ? Object.assign({}, it, { checked: !it.checked }) : it)
-    this.setData({ splitItems })
-    this._updateSplitTotal()
-  },
-  _updateSplitTotal() {
-    const total = this.data.splitItems.filter(it => it.checked).reduce((s, it) => s + it.price * it.qty, 0)
-    this.setData({ splitTotalStr: fmtMoney(total) })
-  },
-  onSplitMethod(e) { this.setData({ splitMethodIndex: Number(e.detail.value) }) },
-  closeSplit() { this.setData({ splitShow: false }) },
-  confirmSplit() {
-    const selected = this.data.splitItems.filter(it => it.checked)
-    if (selected.length === 0) { util.toast('请至少选择一项结算'); return }
-    const unselected = this.data.splitItems.filter(it => !it.checked)
-    const method = METHOD_LIST[this.data.splitMethodIndex]
-    const settleTotal = selected.reduce((s, it) => s + it.price * it.qty, 0)
-    const order = Store.getById(Store.KEYS.orders, this.data.splitOrderId)
-    Store.create(Store.KEYS.settlements, {
-      venueId: this.data.venueId,
-      orderIds: [order.id],
-      subtotal: settleTotal,
-      discount: 0,
-      total: settleTotal,
-      method,
-      paidAt: Date.now(),
-    }, { prefix: 'stl', noTimestamp: true })
-    if (unselected.length === 0) {
-      Store.update(Store.KEYS.orders, order.id, { status: 'settled', settledAt: Date.now() })
-      const stillOpen = Store.ordersByVenue(this.data.venueId).some(o => o.tableId === order.tableId && o.status === 'open')
-      if (!stillOpen) Store.setTableStatus(this.data.venueId, order.tableId, 'idle')
-    } else {
-      const remainItems = unselected.map(it => ({ itemId: it.itemId, name: it.name, price: it.price, qty: it.qty, notes: '' }))
-      Store.update(Store.KEYS.orders, order.id, { items: remainItems })
-    }
-    this.setData({ splitShow: false })
-    util.toast(`拆分结算成功：¥${fmtMoney(settleTotal)}（${METHOD_NAMES[this.data.splitMethodIndex]}）`, 'success')
+    util.toast('结算成功：¥' + fmtMoney(total) + '（' + METHOD_NAMES[this.data.methodIndex] + '）', 'success')
     this.refresh()
   },
 })
