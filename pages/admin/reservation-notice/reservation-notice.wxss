@@ -2,23 +2,30 @@
 
 .empty {
   text-align: center;
-  padding: 120rpx 24rpx;
+  padding: 100rpx 24rpx;
   color: #9ca3af;
 }
 .empty-icon { font-size: 80rpx; margin-bottom: 20rpx; opacity: 0.85; }
-.empty-tip { font-size: 24rpx; margin-top: 8rpx; }
+.empty > view:not(.empty-icon):not(.empty-tip) {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8rpx;
+}
+.empty-tip { font-size: 26rpx; margin-top: 8rpx; }
 
-/* 通知卡片 */
+/* 通知卡片：圆角 24rpx、柔和阴影 */
 .notice-card {
   background: #fff;
-  border-radius: 20rpx;
-  padding: 24rpx;
+  border-radius: 24rpx;
+  padding: 28rpx 24rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 4rpx 14rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #f3f4f6;
   border-left: 6rpx solid #6366f1;
 }
 .notice-card.status-pending { border-left-color: #f59e0b; }
-.notice-card.status-review  { border-left-color: #3b82f6; }
+.notice-card.status-review  { border-left-color: #6366f1; }
 .notice-card.status-handled { border-left-color: #10b981; opacity: 0.7; }
 
 .nc-header {
@@ -51,7 +58,7 @@
   font-weight: 500;
 }
 .nc-status-pending { background: #fef3c7; color: #92400e; }
-.nc-status-review  { background: #dbeafe; color: #1e40af; }
+.nc-status-review  { background: #eef2ff; color: #4338ca; }
 .nc-status-handled { background: #d1fae5; color: #065f46; }
 
 .nc-detail {
@@ -113,7 +120,7 @@
 .nc-btn-primary {
   background: linear-gradient(135deg, #6366f1, #818cf8);
   color: #fff;
-  box-shadow: 0 4rpx 10rpx rgba(99, 102, 241, 0.25);
+  box-shadow: 0 6rpx 20rpx rgba(99, 102, 241, 0.4);
 }
 .nc-btn-ghost {
   background: #fff;
@@ -135,8 +142,9 @@
 .assign-box {
   width: 86%;
   background: #fff;
-  border-radius: 20rpx;
+  border-radius: 24rpx;
   padding: 28rpx 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
 }
 .assign-title {
   font-size: 32rpx;
@@ -174,6 +182,6 @@
 .assign-confirm {
   background: linear-gradient(135deg, #6366f1, #818cf8);
   color: #fff;
-  box-shadow: 0 4rpx 10rpx rgba(99, 102, 241, 0.25);
+  box-shadow: 0 6rpx 20rpx rgba(99, 102, 241, 0.4);
 }
 .assign-btn:active { transform: scale(0.97); }

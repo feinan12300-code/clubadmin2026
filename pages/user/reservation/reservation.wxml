@@ -104,29 +104,6 @@
       </view>
     </view>
 
-    <!-- 桌台安排 -->
-    <view class="rform-section">
-      <view class="rform-section-title">
-        <text class="rs-icon">🪑</text>
-        <text>桌台安排</text>
-      </view>
-      <view class="rform-card">
-        <view class="rform-field">
-          <view class="rf-label">指派桌台</view>
-          <view class="assign-row">
-            <picker bindchange="onTablePick" value="{{tableIndex}}" range="{{tableLabels}}">
-              <view class="rf-picker">{{tableLabels[tableIndex] || '暂无可用桌台'}}<text class="rf-arrow">▾</text></view>
-            </picker>
-            <view class="rec-btn" bindtap="onRecommend">
-              <text class="rec-icon">✨</text>
-              <text>智能推荐</text>
-            </view>
-          </view>
-          <view wx:if="{{recommendHint}}" class="hint hint-{{recommendClass}}">{{recommendHint}}</view>
-        </view>
-      </view>
-    </view>
-
     <!-- 备注 -->
     <view class="rform-section">
       <view class="rform-section-title">
@@ -139,6 +116,9 @@
         </view>
       </view>
     </view>
+
+    <!-- 提示：台位由门店指派 -->
+    <view class="rform-tip">台位由门店工作人员确认后指派，请耐心等待</view>
   </view>
 
   <view slot="footer">

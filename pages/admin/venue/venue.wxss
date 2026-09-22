@@ -1,5 +1,95 @@
+/* pages/admin/venue/venue.wxss — 门店管理（与用户端一致的紫色渐变风格） */
+
+.home-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 0 28rpx;
+}
+.home-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #111827;
+}
+
+.venue-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+/* 门店卡片：圆角 24rpx、柔和阴影、白底 */
+.venue-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid #f3f4f6;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.venue-card:active {
+  transform: scale(0.99);
+  box-shadow: 0 6rpx 24rpx rgba(99, 102, 241, 0.22);
+}
+
+.vc-name {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #111827;
+  line-height: 1.3;
+  margin-bottom: 14rpx;
+}
+.vc-meta {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #6b7280;
+  margin-top: 8rpx;
+  line-height: 1.5;
+}
+
 .vc-actions {
   display: flex;
   gap: 12rpx;
   margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f3f4f6;
+}
+
+/* 悬浮添加按钮：紫色渐变 */
+.add-fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: 60rpx;
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  font-size: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 20rpx rgba(99, 102, 241, 0.4);
+  z-index: 30;
+  transition: transform 0.15s ease;
+}
+.add-fab:active { transform: scale(0.92); }
+
+/* 空状态 */
+.empty {
+  text-align: center;
+  padding: 100rpx 24rpx;
+  color: #9ca3af;
+}
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+  opacity: 0.85;
+}
+.empty > view:not(.empty-icon) {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1f2937;
 }

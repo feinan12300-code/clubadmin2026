@@ -195,6 +195,18 @@
   color: #111827;
 }
 
+/* 提示：台位由门店指派 */
+.rform-tip {
+  margin-top: 18rpx;
+  padding: 18rpx 24rpx;
+  font-size: 24rpx;
+  color: #6366f1;
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  border: 1rpx solid #c7d2fe;
+  border-radius: 12rpx;
+  text-align: center;
+}
+
 /* 选择器卡片 */
 .rf-picker {
   display: flex;

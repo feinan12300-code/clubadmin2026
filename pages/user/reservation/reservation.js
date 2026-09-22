@@ -8,7 +8,6 @@ const STATUS_LABEL = {
   cancelled: '已取消',
   noshow: '未到',
 }
-const TYPE_LABEL = { round: '圆桌', square: '方桌', booth: '卡座', bar: '吧台' }
 
 Page({
   data: {
@@ -17,15 +16,10 @@ Page({
     isAdmin: false,
     date: '',
     reservations: [],
-    // 表单
+    // 表单（不再含 tableId：台位由管理端指派）
     formShow: false,
     formId: '',
-    form: { customerName: '', wechat: '', phone: '', date: '', time: '20:00', partySize: 2, tableId: '', notes: '' },
-    tableLabels: [],
-    tableIndex: 0,
-    tableOptions: [],
-    recommendHint: '',
-    recommendClass: '',
+    form: { customerName: '', wechat: '', phone: '', date: '', time: '20:00', partySize: 2, notes: '' },
   },
 
   onLoad(options) {
@@ -70,13 +64,10 @@ Page({
     let v = e.detail.value
     if (key === 'partySize') v = Number(v) || 0
     this.setData({ [`form.${key}`]: v })
-    if (key === 'partySize') this.updateRecommend()
   },
 
   onFormDate(e) {
     this.setData({ 'form.date': e.detail.value })
-    this.rebuildTableOptions()
-    this.updateRecommend()
   },
 
   onFormTime(e) {
@@ -88,103 +79,19 @@ Page({
     const v = Number(this.data.form.partySize) || 1
     if (v >= 50) { util.toast('人数上限 50'); return }
     this.setData({ 'form.partySize': v + 1 })
-    this.updateRecommend()
   },
   onDec() {
     const v = Number(this.data.form.partySize) || 1
     if (v <= 1) return
     this.setData({ 'form.partySize': v - 1 })
-    this.updateRecommend()
   },
-
-  // 桌台列表（强制选桌台：移除"— 不指派 —"选项）
-  rebuildTableOptions() {
-    const tables = Store.tablesByVenue(this.data.venueId)
-    const formDate = this.data.form.date || this.data.date
-    const busyTableIds = Store.reservationsByVenue(this.data.venueId)
-      .filter(x => x.id !== this.data.formId && x.date === formDate && x.status === 'pending' && x.tableId)
-      .map(x => x.tableId)
-    const options = []
-    tables.forEach(t => {
-      const busy = busyTableIds.includes(t.id)
-      // 仅列出空闲/已预定但未占用的桌台；已被占用的桌台不在选项中
-      if (t.status === 'occupied') return
-      options.push({
-        id: t.id,
-        label: `${t.name} (${TYPE_LABEL[t.type] || t.type}/${t.capacity}人)${busy ? ' [同时段已订]' : ''}`,
-        busy,
-      })
-    })
-    const labels = options.map(o => o.label)
-    let idx = options.findIndex(o => o.id === this.data.form.tableId)
-    if (idx < 0) idx = 0
-    this.setData({
-      tableOptions: options,
-      tableLabels: labels,
-      tableIndex: idx,
-      'form.tableId': options[idx] ? options[idx].id : '',
-    })
-  },
-
-  onTablePick(e) {
-    const idx = Number(e.detail.value)
-    const opt = this.data.tableOptions[idx]
-    this.setData({ tableIndex: idx, 'form.tableId': opt ? opt.id : '' })
-  },
-
-  // 智能推荐
-  updateRecommend(apply) {
-    const party = Number(this.data.form.partySize) || 0
-    if (!party) { this.setData({ recommendHint: '', recommendClass: '' }); return }
-    const tables = Store.tablesByVenue(this.data.venueId)
-    const formDate = this.data.form.date || this.data.date
-    const busyTableIds = Store.reservationsByVenue(this.data.venueId)
-      .filter(x => x.date === formDate && x.status === 'pending' && x.tableId)
-      .map(x => x.tableId)
-    const candidates = tables
-      .filter(t => !busyTableIds.includes(t.id) && t.capacity >= party)
-      .sort((a, b) => a.capacity - b.capacity)
-
-    if (candidates.length === 0) {
-      const any = tables.filter(t => !busyTableIds.includes(t.id)).sort((a, b) => a.capacity - b.capacity)
-      if (any.length === 0) {
-        this.setData({ recommendHint: '⚠ 无可用桌台', recommendClass: 'err' })
-      } else {
-        this.setData({
-          recommendHint: `⚠ 无容量≥${party}的桌台，最小容量 ${any[0].capacity}人`,
-          recommendClass: 'warn',
-        })
-        if (apply) {
-          const idx = this.data.tableOptions.findIndex(o => o.id === any[0].id)
-          this.setData({ tableIndex: idx, 'form.tableId': any[0].id })
-          util.toast(`已推荐 ${any[0].name}（容量不足，请确认）`, 'none')
-        }
-      }
-      return
-    }
-    const best = candidates[0]
-    this.setData({
-      recommendHint: `✓ 推荐：${best.name}（${best.capacity}人，${TYPE_LABEL[best.type] || best.type}）`,
-      recommendClass: 'ok',
-    })
-    if (apply) {
-      const idx = this.data.tableOptions.findIndex(o => o.id === best.id)
-      this.setData({ tableIndex: idx, 'form.tableId': best.id })
-      util.toast(`已推荐 ${best.name}`, 'success')
-    }
-  },
-
-  onRecommend() { this.updateRecommend(true) },
 
   openAdd() {
     this.setData({
       formShow: true,
       formId: '',
-      form: { customerName: '', wechat: '', phone: '', date: this.data.date, time: '20:00', partySize: 2, tableId: '', notes: '' },
-      recommendHint: '',
+      form: { customerName: '', wechat: '', phone: '', date: this.data.date, time: '20:00', partySize: 2, notes: '' },
     })
-    this.rebuildTableOptions()
-    this.updateRecommend()
   },
 
   openEdit(e) {
@@ -201,12 +108,9 @@ Page({
         date: r.date || this.data.date,
         time: r.time || '20:00',
         partySize: r.partySize || 2,
-        tableId: r.tableId || '',
         notes: r.notes || '',
       },
     })
-    this.rebuildTableOptions()
-    this.updateRecommend()
   },
 
   closeForm() { this.setData({ formShow: false }) },
@@ -217,14 +121,7 @@ Page({
     if (!f.wechat.trim()) { util.toast('请填写微信号'); return }
     if (!f.date || !f.time) { util.toast('请填写日期和时间'); return }
     if (!f.partySize || f.partySize < 1) { util.toast('请填写有效人数'); return }
-    // 强制选桌台：预定成功即绑定，用户才能进入门店
-    if (!f.tableId) {
-      const opts = this.data.tableOptions || []
-      if (opts.length === 0) { util.toast('该门店暂无可用桌台'); return }
-      // 用户未选时自动选第一个
-      this.setData({ 'form.tableId': opts[0].id, tableIndex: 0 })
-      f.tableId = opts[0].id
-    }
+    // 台位不在此选择：由管理端在 reservation-notice 指派具体台号
     const data = {
       customerName: f.customerName.trim(),
       wechat: (f.wechat || '').trim(),
@@ -232,28 +129,10 @@ Page({
       date: f.date,
       time: f.time,
       partySize: f.partySize,
-      tableId: f.tableId || null,
       notes: (f.notes || '').trim(),
     }
     if (this.data.formId) {
-      const old = Store.getById(Store.KEYS.reservations, this.data.formId)
       Store.update(Store.KEYS.reservations, this.data.formId, data)
-      // 旧桌台释放
-      if (old.tableId && old.tableId !== data.tableId) {
-        const stillReserved = Store.reservationsByVenue(this.data.venueId)
-          .some(x => x.id !== this.data.formId && x.tableId === old.tableId && x.status === 'pending')
-        const oldTable = Store.getById(Store.KEYS.tables, old.tableId)
-        if (!stillReserved && oldTable && oldTable.status !== 'occupied') {
-          Store.setTableStatus(this.data.venueId, old.tableId, 'idle')
-        }
-      }
-      // 新桌台标记预留
-      if (data.tableId) {
-        const newTable = Store.getById(Store.KEYS.tables, data.tableId)
-        if (newTable && newTable.status !== 'occupied') {
-          Store.setTableStatus(this.data.venueId, data.tableId, 'reserved')
-        }
-      }
       util.toast('预订已更新', 'success')
     } else {
       // 写入用户 token：管理端指派台位时据此绑定到该用户
@@ -261,16 +140,10 @@ Page({
       const r = Store.create(Store.KEYS.reservations, Object.assign({}, data, {
         venueId: this.data.venueId,
         status: 'pending',
+        tableId: null, // 待管理端指派
         token,
       }), { prefix: 'res' })
-      if (r.tableId) {
-        // 用户自选桌台：预定成功即绑定到该用户，使其回到门店列表时"进入门店"按钮可用
-        // setUserTable 会同步把桌台置为 occupied，其他用户无法重复选择
-        if (token) Store.setUserTable(token, this.data.venueId, r.tableId)
-      } else {
-        // 未选桌台：仅写预定，等待管理端在 reservation-notice 指派后绑定
-      }
-      // 通知管理端：新预订待指派台位
+      // 派发到管理端：新预订待指派台位
       const venue = Store.getById(Store.KEYS.venues, this.data.venueId)
       Store.create(Store.KEYS.reservationNotices, {
         venueId: this.data.venueId,
@@ -283,13 +156,13 @@ Page({
         date: r.date,
         time: r.time,
         partySize: r.partySize,
-        tableId: r.tableId,
-        tableName: r.tableId ? (Store.getById(Store.KEYS.tables, r.tableId) || {}).name : '',
+        tableId: '',
+        tableName: '',
         notes: r.notes,
-        status: r.tableId ? 'review' : 'pending', // 已指派需复核 / 未指派待指派
+        status: 'pending', // 待指派
         createdAt: Date.now(),
       }, { prefix: 'rn', noTimestamp: true })
-      util.toast('预订已创建，等待门店确认', 'success')
+      util.toast('预订已提交，等待门店指派台位', 'success')
     }
     this.setData({ formShow: false })
     this.refresh()
