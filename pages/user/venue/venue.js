@@ -26,9 +26,9 @@ Page({
         const t = Store.getById(Store.KEYS.tables, userBinding.tableId)
         return t ? t.name : ''
       })()
-      // 当日待确认预订数即为排队数
+      // 当日排队数：已提交预订但管理端尚未指派台位的数量
       const queueCount = Store.reservationsByVenue(v.id)
-        .filter(r => r.date === today && r.status === 'pending')
+        .filter(r => r.date === today && r.status === 'pending' && !r.tableId)
         .length
       return Object.assign({}, v, {
         tableCount: stats.total,
