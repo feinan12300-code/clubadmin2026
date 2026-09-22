@@ -1,6 +1,7 @@
 const app = getApp()
 const Store = require('../../../utils/store.js')
 const util = require('../../../utils/util.js')
+const Seed = require('../../../utils/seed.js')
 
 const TYPE_DEFAULTS = {
   round:  { w: 60, h: 60, capacity: 4, label: '圆桌' },
@@ -216,6 +217,32 @@ Page({
         this.loadTables()
         this.draw()
         util.toast('已清空', 'success')
+      },
+    })
+  },
+
+  // 应用「拾叁唐 LIVESHOW」预设布局：清空当前门店桌台并生成 75 个台位
+  apply13Tang() {
+    const tables = Store.tablesByVenue(this.data.venueId)
+    wx.showModal({
+      title: '应用拾叁唐布局',
+      content: tables.length > 0
+        ? `将清空当前门店已有的 ${tables.length} 个桌台，并生成拾叁唐风格 75 个台位（C区10/G区9/B区8/SVIP12/BOSS36）。确认？`
+        : `将为当前门店生成拾叁唐风格 75 个台位（C区10/G区9/B区8/SVIP12/BOSS36）。确认？`,
+      confirmColor: '#6366f1',
+      success: res => {
+        if (!res.confirm) return
+        // 先清空现有桌台
+        tables.forEach(t => Store.remove(Store.KEYS.tables, t.id))
+        // 生成拾叁唐布局
+        Seed.build13TangLayout().forEach(t => {
+          Store.create(Store.KEYS.tables, Object.assign({ venueId: this.data.venueId }, t), { prefix: 'tbl', noTimestamp: true })
+        })
+        this.selectedId = null
+        this.setData({ inspectorShow: false })
+        this.loadTables()
+        this.draw()
+        util.toast('已应用拾叁唐布局（75 台位）', 'success')
       },
     })
   },

@@ -1,6 +1,42 @@
 // seed.js — 首次运行注入示例数据
 const Store = require('./store.js')
 
+// 生成「拾叁唐 LIVESHOW」风格座位布局（共 75 个台位）
+// 适配 seatmap canvas（约 340×450 CSS px）：
+//   - C区：舞台前方一排 10 个 booth（容量8）
+//   - G区：左侧纵列 9 个 booth（容量5，编号 G10-G18）
+//   - B区：右侧纵列 8 个 booth（容量5，编号 B01-B08）
+//   - SVIP：中上核心区 2×6 共 12 个 booth（容量10）
+//   - BOSS：中下部 6×6 网格 36 个 round（容量6）
+function build13TangLayout() {
+  const tables = []
+  // C区：舞台前方一排
+  for (let i = 0; i < 10; i++) {
+    tables.push({ name: `C${String(i + 1).padStart(2, '0')}`, type: 'booth', capacity: 8, x: 40 + i * 26, y: 55, w: 24, h: 20, status: 'idle' })
+  }
+  // G区：左侧纵列（G10-G18）
+  for (let i = 0; i < 9; i++) {
+    tables.push({ name: `G${String(i + 10).padStart(2, '0')}`, type: 'booth', capacity: 5, x: 6, y: 55 + i * 35, w: 26, h: 22, status: 'idle' })
+  }
+  // B区：右侧纵列（B01-B08）
+  for (let i = 0; i < 8; i++) {
+    tables.push({ name: `B${String(i + 1).padStart(2, '0')}`, type: 'booth', capacity: 5, x: 308, y: 55 + i * 35, w: 26, h: 22, status: 'idle' })
+  }
+  // SVIP：中上核心区 2×6
+  for (let i = 0; i < 6; i++) {
+    tables.push({ name: `SVIP${i + 1}`, type: 'booth', capacity: 10, x: 50 + i * 40, y: 115, w: 30, h: 24, status: 'idle' })
+    tables.push({ name: `SVIP${i + 7}`, type: 'booth', capacity: 10, x: 50 + i * 40, y: 150, w: 30, h: 24, status: 'idle' })
+  }
+  // BOSS：中下部 6×6 网格
+  for (let r = 0; r < 6; r++) {
+    for (let c = 0; c < 6; c++) {
+      const idx = r * 6 + c + 1
+      tables.push({ name: `BOSS${idx}`, type: 'round', capacity: 6, x: 45 + c * 35, y: 190 + r * 30, w: 20, h: 20, status: 'idle' })
+    }
+  }
+  return tables
+}
+
 function inject() {
   // 门店 1
   const v1 = Store.create(Store.KEYS.venues, {
@@ -18,17 +54,8 @@ function inject() {
     openHours: '20:00 - 04:00',
   }, { prefix: 'ven' })
 
-  // 门店 1 桌台
-  const tables1 = [
-    { name: 'A1', type: 'round', capacity: 4, x: 40, y: 40, w: 60, h: 60, status: 'idle' },
-    { name: 'A2', type: 'round', capacity: 4, x: 160, y: 40, w: 60, h: 60, status: 'idle' },
-    { name: 'B1', type: 'square', capacity: 2, x: 40, y: 160, w: 70, h: 50, status: 'idle' },
-    { name: 'B2', type: 'square', capacity: 2, x: 160, y: 160, w: 70, h: 50, status: 'idle' },
-    { name: 'C1', type: 'booth', capacity: 6, x: 280, y: 40, w: 80, h: 70, status: 'idle' },
-    { name: '吧台1', type: 'bar', capacity: 1, x: 40, y: 280, w: 30, h: 30, status: 'idle' },
-    { name: '吧台2', type: 'bar', capacity: 1, x: 100, y: 280, w: 30, h: 30, status: 'idle' },
-    { name: '吧台3', type: 'bar', capacity: 1, x: 160, y: 280, w: 30, h: 30, status: 'idle' },
-  ]
+  // 门店 1 桌台：拾叁唐 LIVESHOW 风格座位图（75 个台位）
+  const tables1 = build13TangLayout()
   tables1.forEach(t => Store.create(Store.KEYS.tables, Object.assign({ venueId: v1.id }, t), { prefix: 'tbl' }))
 
   // 门店 1 菜单
@@ -175,4 +202,4 @@ function inject() {
   Store.setCurrentVenueId(v1.id)
 }
 
-module.exports = { inject }
+module.exports = { inject, build13TangLayout }
