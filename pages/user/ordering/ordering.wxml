@@ -1,97 +1,128 @@
 <view class="page">
-  <!-- 顶部桌台信息 banner -->
-  <view wx:if="{{hasBinding && activeTable}}" class="table-banner">
-    <view class="tb-main">
-      <view class="tb-label">当前桌位</view>
-      <view class="tb-name">{{activeTable.name}}</view>
-      <view class="tb-meta">
-        <text class="tb-tag">{{activeTable.typeLabel}}</text>
-        <text class="tb-cap">· {{activeTable.capacity}}人</text>
-        <text class="tb-status status-{{activeTable.status}}">{{activeTable.statusLabel}}</text>
-      </view>
-    </view>
+  <!-- 未绑定桌台空状态 -->
+  <view wx:if="{{!hasBinding}}" class="no-binding">
+    <view class="nb-icon">🪑</view>
+    <view class="nb-title">请先选择桌位</view>
+    <view class="nb-sub">选择桌位后即可开始点单</view>
+    <view class="nb-btn" bindtap="goBind">去选择桌位</view>
   </view>
 
-  <!-- 中间：左右分栏 -->
-  <view class="body">
-    <!-- 左侧：分类列表 -->
-    <scroll-view scroll-y class="cat-list">
-      <view
-        wx:for="{{cats}}"
-        wx:key="*this"
-        class="cat-item {{cat === item ? 'active' : ''}}"
-        bindtap="setCat"
-        data-cat="{{item}}"
-      >{{item}}</view>
-      <view wx:if="{{cats.length === 0}}" class="cat-empty">无分类</view>
-    </scroll-view>
-
-    <!-- 右侧：菜品列表 -->
-    <scroll-view scroll-y class="dish-list">
-      <view wx:if="{{menuList.length === 0}}" class="dish-empty">
-        <view class="de-icon">🍽️</view>
-        <view>本分类暂无菜品</view>
-      </view>
-      <view
-        wx:for="{{menuList}}"
-        wx:key="id"
-        class="dish-card {{item.disabled ? 'disabled' : ''}}"
-      >
-        <view class="dc-info">
-          <view class="dc-name">{{item.name}}</view>
-          <view class="dc-meta">
-            <text class="dc-price">¥{{item.priceStr}}</text>
-            <text class="dc-stock">库存 {{item.stock}}</text>
-          </view>
+  <!-- 已绑定：正常点单 -->
+  <block wx:if="{{hasBinding && activeTable}}">
+    <!-- 顶部桌台信息 banner -->
+    <view class="table-banner">
+      <view class="tb-left">
+        <view class="tb-label">当前桌位</view>
+        <view class="tb-name">{{activeTable.name}}</view>
+        <view class="tb-meta">
+          <text class="tb-tag">{{activeTable.typeLabel}}</text>
+          <text class="tb-cap">{{activeTable.capacity}}人</text>
+          <text class="tb-status status-{{activeTable.status}}">{{activeTable.statusLabel}}</text>
         </view>
-        <view
-          class="dc-add {{item.disabled ? 'disabled' : ''}}"
-          catchtap="addToOrder"
-          data-id="{{item.id}}"
-        >+</view>
       </view>
-    </scroll-view>
-  </view>
-
-  <!-- 底部固定栏：合计 + 去结算 -->
-  <view class="bar">
-    <view class="bar-left" bindtap="openSheet">
-      <view class="bar-total">
-        <text class="bt-cur">¥</text>
-        <text class="bt-num">{{orderTotalStr}}</text>
-      </view>
-      <view class="bar-count">
-        {{orderCount}} 件 · 查看明细
-      </view>
+      <view class="tb-icon">🍽️</view>
     </view>
-    <view class="bar-go" bindtap="goBill">去结算</view>
-  </view>
 
-  <!-- 订单明细弹窗（底部滑入） -->
-  <view wx:if="{{sheetOpen}}" class="sheet-mask" bindtap="closeSheet">
-    <view class="sheet" catchtap="catchSheetTap">
-      <view class="sheet-head">
-        <view class="sh-title">订单明细</view>
-        <view class="sh-close" bindtap="closeSheet">×</view>
-      </view>
-      <scroll-view scroll-y class="sheet-list">
-        <view wx:if="{{orderItems.length === 0}}" class="sheet-empty">订单为空</view>
-        <view wx:for="{{orderItems}}" wx:key="idx" class="sl-row">
-          <view class="sl-info">
-            <view class="sl-name">{{item.name}}</view>
-            <view class="sl-price">¥{{item.priceStr}} × {{item.qty}} = ¥{{item.subtotalStr}}</view>
+    <!-- 中间：左右分栏 -->
+    <view class="body">
+      <!-- 左侧：分类列表 -->
+      <scroll-view scroll-y class="cat-list" enhanced show-scrollbar="{{false}}">
+        <view
+          wx:for="{{cats}}"
+          wx:key="*this"
+          class="cat-item {{cat === item ? 'active' : ''}}"
+          bindtap="setCat"
+          data-cat="{{item}}"
+        >
+          <view class="ci-bar"></view>
+          <text class="ci-text">{{item}}</text>
+        </view>
+        <view wx:if="{{cats.length === 0}}" class="cat-empty">暂无分类</view>
+      </scroll-view>
+
+      <!-- 右侧：菜品列表 -->
+      <scroll-view scroll-y class="dish-list" enhanced show-scrollbar="{{false}}">
+        <view wx:if="{{menuList.length === 0}}" class="dish-empty">
+          <view class="de-icon">📋</view>
+          <view class="de-text">本分类暂无菜品</view>
+        </view>
+
+        <view
+          wx:for="{{menuList}}"
+          wx:key="id"
+          class="dish-card {{item.disabled ? 'disabled' : ''}}"
+        >
+          <view class="dc-emoji">{{item.emoji || '🍹'}}</view>
+          <view class="dc-info">
+            <view class="dc-name">{{item.name}}</view>
+            <view class="dc-meta">
+              <text class="dc-price">¥{{item.priceStr}}</text>
+              <text class="dc-stock" wx:if="{{item.stock > 0}}">库存 {{item.stock}}</text>
+              <text class="dc-stock dc-nostock" wx:else>已售罄</text>
+            </view>
           </view>
-          <view class="sl-ctrl">
-            <view class="sl-btn" catchtap="minusItem" data-idx="{{index}}">−</view>
-            <text class="sl-qty">{{item.qty}}</text>
-            <view class="sl-btn sl-plus" catchtap="addToOrder" data-id="{{item.itemId}}">+</view>
+          <!-- 加号按钮 + 已点数量角标 -->
+          <view class="dc-add-wrap">
+            <view wx:if="{{item.inOrder}}" class="dc-qty">{{item.inOrder}}</view>
+            <view
+              class="dc-add {{item.disabled ? 'disabled' : ''}}"
+              catchtap="addToOrder"
+              data-id="{{item.id}}"
+            >+</view>
           </view>
         </view>
       </scroll-view>
-      <view class="sheet-foot">
-        <view class="sf-total">合计 <text class="sf-num">¥{{orderTotalStr}}</text></view>
-        <view class="sf-go" bindtap="goBill">去结算</view>
+    </view>
+
+    <!-- 底部固定栏：购物车 + 合计 + 去结算 -->
+    <view class="bar">
+      <view class="bar-cart" bindtap="openSheet">
+        <view class="bc-icon">🛒</view>
+        <view wx:if="{{orderCount > 0}}" class="bc-badge">{{orderCount}}</view>
+      </view>
+      <view class="bar-left" bindtap="openSheet">
+        <view class="bar-total">
+          <text class="bt-cur">¥</text>
+          <text class="bt-num">{{orderTotalStr}}</text>
+        </view>
+        <view class="bar-count">
+          {{orderCount > 0 ? orderCount + ' 件 · 查看明细' : '购物车是空的'}}
+        </view>
+      </view>
+      <view class="bar-go {{orderCount === 0 ? 'disabled' : ''}}" bindtap="goBill">去结算</view>
+    </view>
+
+    <!-- 订单明细弹窗（底部滑入） -->
+    <view wx:if="{{sheetOpen}}" class="sheet-mask" bindtap="closeSheet">
+      <view class="sheet" catchtap="catchSheetTap">
+        <!-- 拖拽指示条 -->
+        <view class="sheet-handle"></view>
+        <view class="sheet-head">
+          <view class="sh-title">订单明细</view>
+          <view class="sh-close" bindtap="closeSheet">✕</view>
+        </view>
+        <scroll-view scroll-y class="sheet-list">
+          <view wx:if="{{orderItems.length === 0}}" class="sheet-empty">
+            <view class="se-icon">🛒</view>
+            <view>订单为空</view>
+          </view>
+          <view wx:for="{{orderItems}}" wx:key="idx" class="sl-row">
+            <view class="sl-info">
+              <view class="sl-name">{{item.name}}</view>
+              <view class="sl-price">¥{{item.priceStr}} × {{item.qty}}</view>
+            </view>
+            <view class="sl-ctrl">
+              <view class="sl-btn" catchtap="minusItem" data-idx="{{index}}">−</view>
+              <text class="sl-qty">{{item.qty}}</text>
+              <view class="sl-btn sl-plus" catchtap="addToOrder" data-id="{{item.itemId}}">+</view>
+            </view>
+          </view>
+        </scroll-view>
+        <view class="sheet-foot">
+          <view class="sf-total">合计 <text class="sf-num">¥{{orderTotalStr}}</text></view>
+          <view class="sf-go" bindtap="goBill">去结算</view>
+        </view>
       </view>
     </view>
-  </view>
+  </block>
 </view>

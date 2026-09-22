@@ -6,6 +6,13 @@ const util = require('../../../utils/util.js')
 const TYPE_LABEL = { round: '圆桌', square: '方桌', booth: '卡座', bar: '吧台' }
 const STATUS_LABEL = { idle: '空闲', occupied: '使用中', reserved: '预留' }
 
+// 分类 emoji 映射
+const CAT_EMOJI = {
+  '酒水': '🍺', '鸡尾酒': '🍸', '烈酒': '🥃', '小食': '🍟',
+  '套餐': '🍱', '果盘': '🍇', '热饮': '☕', '冷饮': '🧊',
+}
+const DEFAULT_EMOJI = '🍹'
+
 function fmtMoney(n) { return Number(n || 0).toFixed(2) }
 
 Page({
@@ -113,14 +120,25 @@ Page({
     })
   },
 
-  // 刷新菜单：按分类分组
+  // 刷新菜单：按分类分组，标注已点数量
   refreshMenu() {
     const all = Store.menuByVenue(this.data.venueId)
     const cats = [...new Set(all.map(m => m.category).filter(Boolean))]
     let cat = this.data.cat
     if (!cat || !cats.includes(cat)) cat = cats[0] || ''
+    // 获取当前订单中的菜品数量映射
+    const order = this.data.activeOrderId
+      ? Store.getById(Store.KEYS.orders, this.data.activeOrderId)
+      : null
+    const inOrderMap = {}
+    ;(order && order.items || []).forEach(it => { inOrderMap[it.itemId] = it.qty })
     const filtered = (cat ? all.filter(m => m.category === cat) : all)
-      .map(m => Object.assign({}, m, { priceStr: fmtMoney(m.price), disabled: !m.available || m.stock <= 0 }))
+      .map(m => Object.assign({}, m, {
+        priceStr: fmtMoney(m.price),
+        disabled: !m.available || m.stock <= 0,
+        inOrder: inOrderMap[m.id] || 0,
+        emoji: CAT_EMOJI[m.category] || DEFAULT_EMOJI,
+      }))
     this.setData({ cats, cat, menuList: filtered })
   },
 
@@ -159,6 +177,11 @@ Page({
     Store.update(Store.KEYS.orders, order.id, { items: order.items })
     this.refreshActive()
     this.refreshMenu()
+  },
+
+  // 跳转选择桌位
+  goBind() {
+    wx.redirectTo({ url: '/pages/user/table-bind/table-bind?venueId=' + this.data.venueId })
   },
 
   // 弹窗：展开订单明细
