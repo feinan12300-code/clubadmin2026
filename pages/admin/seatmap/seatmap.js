@@ -120,19 +120,36 @@ Page({
     if (!t) return
     let nx = Math.max(0, Math.min(this.canvasW - t.w, this.drag.origX + (x - this.drag.startX)))
     let ny = Math.max(0, Math.min(this.canvasH - t.h, this.drag.origY + (y - this.drag.startY)))
-    Store.update(Store.KEYS.tables, t.id, { x: nx, y: ny })
+    // 仅更新内存临时坐标，不写 storage、不 setData，避免高频 IO + 跨线程通信导致卡顿
+    this.drag.curX = nx
+    this.drag.curY = ny
     this.drag.moved = true
-    this.loadTables()
-    this.setData({ dragHint: `${t.name}  (${Math.round(nx)}, ${Math.round(ny)})` })
-    this.draw()
+    // RAF 合并重绘：一帧最多一次 draw，把多次 move 合并成一帧
+    if (!this.drag.rafQueued) {
+      this.drag.rafQueued = true
+      const raf = this.canvas && this.canvas.requestAnimationFrame
+        ? this.canvas.requestAnimationFrame.bind(this.canvas)
+        : (cb) => setTimeout(cb, 16)
+      raf(() => {
+        if (!this.drag) return
+        this.drag.rafQueued = false
+        this.draw()
+      })
+    }
   },
 
   onTouchEnd() {
     if (!this.drag) return
-    // 拖拽/点击结束：打开 inspector 显示最新坐标（纯点击也打开，便于编辑属性）
+    // 拖拽结束：moved 时才写 storage + 同步 tables（move 期间都只在内存）
+    if (this.drag.moved && this.drag.curX !== undefined) {
+      Store.update(Store.KEYS.tables, this.drag.id, { x: this.drag.curX, y: this.drag.curY })
+      this.loadTables()
+    }
+    // 打开 inspector 显示最新坐标
     this.openInspector(this.drag.id)
     this.setData({ dragHint: '' })
     this.drag = null
+    this.draw()
   },
 
   getTouchPos(e) {
@@ -344,7 +361,14 @@ Page({
     const ctx = this.ctx
     if (!ctx) return
     ctx.clearRect(0, 0, this.canvasW, this.canvasH)
-    Store.tablesByVenue(this.data.venueId).forEach(t => this.drawTable(ctx, t))
+    Store.tablesByVenue(this.data.venueId).forEach(t => {
+      // 拖拽中的台位用内存临时坐标，避免读到未写入的旧坐标
+      if (this.drag && this.drag.id === t.id && this.drag.curX !== undefined) {
+        this.drawTable(ctx, Object.assign({}, t, { x: this.drag.curX, y: this.drag.curY }))
+      } else {
+        this.drawTable(ctx, t)
+      }
+    })
   },
 
   drawTable(ctx, t) {
